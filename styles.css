@@ -70,7 +70,13 @@ body::before {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
-/* YENİ EKLENEN KISIM */
+.profile-container p {
+    font-size: 1.1em;
+    margin-top: 15px;
+    color: #ccc;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+}
+
 #audioControls {
     position: fixed;
     bottom: 20px;
