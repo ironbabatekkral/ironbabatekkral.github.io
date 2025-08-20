@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iron'ının Envere çaktığı page</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Iron's Page</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -21,10 +21,12 @@
         </div>
     </div>
 
-    <audio id="backgroundMusic" loop controls>
-        <source src="yanarortalik.mp4" type="audio/mp4">
-    </audio>
-     
+    <div id="audioControls" class="hidden">
+        <span>🔊</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="80">
+    </div>
+
+    <audio id="backgroundMusic" loop></audio>
 
     <script src="script.js"></script>
 </body>
