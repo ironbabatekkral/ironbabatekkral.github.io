@@ -1,3 +1,10 @@
+// --- KABA KUVVET KISMI ---
+// Sayfa açılır açılmaz, CSS'e güvenmeden biz kendimiz gizleyelim.
+document.getElementById('mainContent').style.display = 'none';
+document.getElementById('audioControls').style.display = 'none';
+
+
+// --- ESKİ KODLARIMIZ ---
 document.addEventListener('DOMContentLoaded', () => {
     const startScreen = document.getElementById('startScreen');
     const mainContent = document.getElementById('mainContent');
@@ -6,26 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioControls = document.getElementById('audioControls');
     const volumeSlider = document.getElementById('volumeSlider');
 
-    // Müziğin dosya yolunu burada belirt
     music.src = 'yanarortalik.mp4';
-
-    // Sayfa yüklenince ses ayarını yap
     music.volume = volumeSlider.value / 100;
 
-    // Butona tıklama olayı
     startButton.addEventListener('click', () => {
-        // Müziği başlat
         music.play().catch(error => {
             console.log("Müzik başlatılamadı:", error);
         });
 
-        // Ekranları değiştir
         startScreen.style.display = 'none';
-        mainContent.classList.remove('hidden');
-        audioControls.classList.remove('hidden'); // Ses kontrolünü görünür yap
+        
+        // Gizlediğimiz elemanları şimdi görünür yapalım
+        mainContent.style.display = 'block'; // veya 'flex' vs. ama block iş görür
+        audioControls.style.display = 'flex';
     });
 
-    // Ses ayar çubuğu olayı
     volumeSlider.addEventListener('input', (e) => {
         music.volume = e.target.value / 100;
     });
