@@ -1,0 +1,88 @@
+body {
+    background-image: url('ferrari.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    /* Arka plan resminin üzerine hafif bir karartma ekleyerek yazıları okunur yapalım */
+    position: relative;
+    z-index: 1;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Siyah ve %50 şeffaf */
+    z-index: -1;
+}
+
+
+/* Başlangıç Ekranı Stilleri */
+#startScreen {
+    text-align: center;
+}
+
+#startButton {
+    background-color: #bb0000;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#startButton:hover {
+    background-color: #ff0000;
+    transform: scale(1.05);
+}
+
+/* Ana İçerik Stilleri */
+.profile-container {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 1s forwards;
+    animation-delay: 0.5s; /* Butona basıldıktan sonraki gecikme */
+}
+
+.profile-pic {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 5px solid #ABACB1;
+    object-fit: cover;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 5);
+}
+
+.username {
+    font-size: 3em;
+    margin-top: 20px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Gölgeyi beyaz yaptım */
+}
+
+/* Yardımcı Sınıflar */
+.hidden {
+    display: none;
+}
+
+/* Animasyon */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
