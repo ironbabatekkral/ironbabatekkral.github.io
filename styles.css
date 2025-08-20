@@ -74,6 +74,17 @@ body::before {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Gölgeyi beyaz yaptım */
 }
 
+#backgroundMusic {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    opacity: 0.8;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
 /* Yardımcı Sınıflar */
 .hidden {
     display: none;
