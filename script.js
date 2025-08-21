@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         "interactivity": {
             "detect_on": "canvas",
-            "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+            "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": false, "mode": "push" }, "resize": true },
             "modes": {
                 "repulse": { "distance": 100, "duration": 0.4 },
                 "push": { "particles_nb": 4 }
