@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iron'ın Sayfası</title>
+    <title>Iron's Page</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <div id="preloader"><div class="spinner"></div></div>
+    <div id="particles-js"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
     <div id="startScreen">
         <h1>Hazır mısın?</h1>
@@ -14,10 +19,12 @@
     </div>
 
     <div id="mainContent" class="hidden">
-        <div class="profile-container">
-            <img src="iron.jpg" alt="Profil Fotosu" class="profile-pic">
-            <h1 class="username">Iron</h1>
-            <p>ironbabatekkral was here</p>
+        <div class="tilt-wrapper">
+            <div class="profile-container">
+                <img src="iron.jpg" alt="Profil Fotosu" class="profile-pic">
+                <h1 class="username">Iron</h1>
+                <p>ironbabatekkral was here</p>
+            </div>
         </div>
     </div>
 
@@ -28,6 +35,8 @@
 
     <audio id="backgroundMusic" loop></audio>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

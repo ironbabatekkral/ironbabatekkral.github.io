@@ -1,140 +1,170 @@
+* {
+  box-sizing: border-box;
+}
+body,
+html {
+  cursor: none;
+}
 body {
-    background-image: url('ferrari.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
+  background-image: url("ferrari.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #ffffff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
 }
-
 body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: -1;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 0;
 }
-
-#startScreen {
-    text-align: center;
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #111;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
 }
-
-#startButton {
-    background-color: #bb0000;
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+#preloader.loaded {
+  opacity: 0;
+  visibility: hidden;
 }
-
-#startButton:hover {
-    background-color: #ff0000;
-    transform: scale(1.05);
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #555;
+  border-top-color: #bb0000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
-
-.profile-container {
-    text-align: center;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeIn 1s forwards;
-    animation-delay: 0.5s;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
-
-.profile-pic {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 5px solid #bb0000;
-    object-fit: cover;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+#particles-js {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
-
-.username {
-    font-size: 3em;
-    margin-top: 20px;
-    letter-spacing: 3px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+.cursor-dot,
+.cursor-outline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
 }
-
-.profile-container p {
-    font-size: 1.1em;
-    margin-top: 15px;
-    color: #ccc;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #bb0000;
 }
-
+.cursor-outline {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #bb0000;
+  transition: all 0.1s ease-out;
+}
+.cursor-outline.hover-effect {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+#startScreen,
+#mainContent,
 #audioControls {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px 20px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  position: relative;
+  z-index: 2;
 }
-
-#audioControls span {
-    font-size: 1.5em;
+#startButton {
+  background-color: #bb0000;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
 }
-
-#volumeSlider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 200px;
-    height: 8px;
-    background: #555;
-    border-radius: 5px;
-    outline: none;
-    opacity: 0.7;
-    transition: opacity .2s;
+button {
+  cursor: none;
 }
-
-#volumeSlider:hover {
-    opacity: 1;
+.tilt-wrapper {
+  width: fit-content;
+  margin: auto;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 1s forwards;
+  animation-delay: 0.5s;
 }
-
-#volumeSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #bb0000;
-    border-radius: 50%;
-    cursor: pointer;
+.profile-container {
+  text-align: center;
+  transform-style: preserve-3d;
 }
-
-#volumeSlider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: #bb0000;
-    border-radius: 50%;
-    cursor: pointer;
+.profile-pic,
+.username,
+.profile-container p {
+  transform: translateZ(40px);
 }
-
+.profile-pic {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 5px solid #bb0000;
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+.username {
+  font-size: 3em;
+  margin-top: 20px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+.profile-container p {
+  font-size: 1.1em;
+  margin-top: 15px;
+  color: #ccc;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+}
+#audioControls {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 .hidden {
-    display: none;
+  display: none;
 }
-
 @keyframes fadeIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
