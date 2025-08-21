@@ -4,6 +4,9 @@
 body,
 html {
   cursor: none;
+  -webkit-user-select: none; /* Safari için */
+  -ms-user-select: none; /* Internet Explorer/Edge için */
+  user-select: none; /* Diğer tüm tarayıcılar için - BU SATIRI EKLE */
 }
 body {
   background-image: url("ferrari.jpg");
