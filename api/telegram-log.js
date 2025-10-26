@@ -101,15 +101,16 @@ function formatTelegramMessage(logData, ip) {
 
 // Ana handler fonksiyonu
 export default async function handler(req, res) {
-    // CORS headers - GitHub Pages'dan gelen isteklere izin ver
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Herkese aç (en kolay)
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Max-Age', '86400'); // 24 saat cache
+    // CORS headers - TAMAMEN AÇ!
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
     // OPTIONS request (preflight)
     if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        res.status(200).end();
+        return;
     }
 
     // Sadece POST isteklerini kabul et
