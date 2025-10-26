@@ -1,0 +1,16 @@
+{
+  "name": "ironbabatekkral-portfolio",
+  "version": "1.0.0",
+  "description": "Advanced Security Portfolio with Telegram Remote Control",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0"
+  },
+  "author": "Iron",
+  "license": "MIT"
+}
+

