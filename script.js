@@ -67,8 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initScrollAnimations();
         // GitHub projelerini yükle
         loadProjects();
-        // Log animasyonunu başlat
-        startLogAnimation();
     });
 
     volumeSlider.addEventListener('input', (e) => {
@@ -175,78 +173,7 @@ async function loadProjects() {
     }
 }
 
-// LOG ANİMASYONU
-function startLogAnimation() {
-    const logContent = document.getElementById('logContent');
-    const logLines = logContent.querySelectorAll('.log-line');
-    
-    // Tüm logları gizle
-    logLines.forEach(line => {
-        line.style.opacity = '0';
-        line.style.display = 'none';
-    });
-    
-    // Logları sırayla göster
-    logLines.forEach((line, index) => {
-        setTimeout(() => {
-            line.style.display = 'block';
-            setTimeout(() => {
-                line.style.opacity = '1';
-            }, 50);
-        }, index * 300); // Her log 300ms arayla
-    });
-    
-    // Sürekli yeni log ekle (opsiyonel)
-    setInterval(() => {
-        addRandomLog();
-    }, 5000); // Her 5 saniyede bir yeni log
-}
-
-function addRandomLog() {
-    const logContent = document.getElementById('logContent');
-    const now = new Date();
-    const timestamp = now.toISOString().slice(0, 19).replace('T', ' ');
-    
-    const logTypes = [
-        { type: 'info', class: 'log-info', messages: [
-            'Monitoring system status...',
-            'Checking network connections...',
-            'Analyzing incoming traffic...',
-            'Performing security audit...'
-        ]},
-        { type: 'success', class: 'log-success', messages: [
-            'All systems operational',
-            'Security update applied successfully',
-            'Backup completed successfully',
-            'Connection secured with TLS 1.3'
-        ]},
-        { type: 'warning', class: 'log-warning', messages: [
-            'High memory usage detected',
-            'Unusual login pattern detected',
-            'SSL certificate expires in 30 days',
-            'Rate limit approaching threshold'
-        ]}
-    ];
-    
-    const randomType = logTypes[Math.floor(Math.random() * logTypes.length)];
-    const randomMessage = randomType.messages[Math.floor(Math.random() * randomType.messages.length)];
-    
-    const newLog = document.createElement('div');
-    newLog.className = 'log-line';
-    newLog.innerHTML = `[<span class="log-time">${timestamp}</span>] <span class="${randomType.class}">${randomType.type.toUpperCase()}</span> ${randomMessage}`;
-    
-    logContent.appendChild(newLog);
-    
-    // Scroll to bottom
-    const terminalLog = document.querySelector('.terminal-log');
-    terminalLog.scrollTop = terminalLog.scrollHeight;
-    
-    // Max 20 log tut
-    const allLogs = logContent.querySelectorAll('.log-line');
-    if (allLogs.length > 20) {
-        allLogs[0].remove();
-    }
-}
+// LOG ANİMASYONU KALDIRILDI - Terminal bölümü artık yok
 
 // SEÇİM VE SAĞ TIKLAMA KORUMASI (İSTEĞE BAĞLI)
 // İsterseniz bu kısmı açabilirsiniz

