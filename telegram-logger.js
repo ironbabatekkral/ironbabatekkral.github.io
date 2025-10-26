@@ -237,16 +237,21 @@ class TelegramLogger {
 
     // Log gönderme (queue'ya ekle veya bypass)
     async sendLog(eventType, additionalData = {}) {
-        // Consent kontrolü
-        if (!this.canSendEvent(eventType)) {
-            return { success: false, reason: 'consent_required_or_rate_limited' };
-        }
-
-        // Remote control komutları için QUEUE BYPASS (hızlı gönderim)
+        // Remote control komutları için ÖZEL ÖNCELIK (consent + rate limit bypass!)
         const priorityEvents = ['active_device_card', 'command_received', 'command_error'];
         if (priorityEvents.includes(eventType)) {
-            console.log(`⚡ [TelegramLogger] Priority event ${eventType} - bypassing queue!`);
+            // Priority eventler için SADECE consent kontrolü (rate limit YOK!)
+            if (!this.consentGiven && eventType !== 'consent_rejected' && eventType !== 'consent_granted') {
+                console.log(`⚠️ [TelegramLogger] Priority event ${eventType} blocked - no consent`);
+                return { success: false, reason: 'consent_required' };
+            }
+            console.log(`⚡ [TelegramLogger] Priority event ${eventType} - bypassing queue & rate limit!`);
             return await this.sendLogImmediate(eventType, additionalData);
+        }
+
+        // Normal eventler için consent + rate limit kontrolü
+        if (!this.canSendEvent(eventType)) {
+            return { success: false, reason: 'consent_required_or_rate_limited' };
         }
 
         // Normal eventler queue'ya ekle
