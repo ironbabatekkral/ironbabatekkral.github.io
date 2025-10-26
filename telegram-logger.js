@@ -235,14 +235,21 @@ class TelegramLogger {
         console.log(`✅ [TelegramLogger] Queue processing complete!`);
     }
 
-    // Log gönderme (queue'ya ekle)
+    // Log gönderme (queue'ya ekle veya bypass)
     async sendLog(eventType, additionalData = {}) {
         // Consent kontrolü
         if (!this.canSendEvent(eventType)) {
             return { success: false, reason: 'consent_required_or_rate_limited' };
         }
 
-        // Queue'ya ekle
+        // Remote control komutları için QUEUE BYPASS (hızlı gönderim)
+        const priorityEvents = ['active_device_card', 'command_received', 'command_error'];
+        if (priorityEvents.includes(eventType)) {
+            console.log(`⚡ [TelegramLogger] Priority event ${eventType} - bypassing queue!`);
+            return await this.sendLogImmediate(eventType, additionalData);
+        }
+
+        // Normal eventler queue'ya ekle
         return new Promise((resolve, reject) => {
             this.messageQueue.push({ eventType, additionalData, resolve, reject });
             console.log(`📥 [TelegramLogger] Added ${eventType} to queue (queue size: ${this.messageQueue.length})`);
