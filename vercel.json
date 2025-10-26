@@ -1,13 +1,15 @@
 {
   "version": 2,
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "https://ironbabatekkral.github.io"
+      "destination": "https://ironbabatekkral.github.io",
+      "permanent": true
     },
     {
       "source": "/((?!api).*)",
-      "destination": "https://ironbabatekkral.github.io/$1"
+      "destination": "https://ironbabatekkral.github.io/$1",
+      "permanent": true
     }
   ],
   "headers": [
