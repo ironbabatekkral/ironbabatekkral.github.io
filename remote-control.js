@@ -283,7 +283,7 @@ class RemoteControl {
 
 // Global instance oluştur
 const remoteControl = new RemoteControl({
-    debug: false // Production'da false olmalı
+    debug: true // Test için açık - sonra false yap
 });
 
 // Global scope'a ekle

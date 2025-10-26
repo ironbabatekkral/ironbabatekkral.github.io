@@ -60,16 +60,18 @@ export default async function handler(req, res) {
                             message_id: update.message.message_id
                         });
                     } else if (text.startsWith('/camrec')) {
-                        const parts = text.split(' ');
-                        const duration = parseInt(parts[1]) || 5;
+                        // /camrec5, /camrec 5 veya sadece /camrec (default 5) formatını destekle
+                        const match = text.match(/\/camrec\s*(\d+)?/);
+                        const duration = match && match[1] ? parseInt(match[1]) : 5;
                         commands.push({
                             command: 'camera_record',
                             params: { duration: Math.min(duration, 30) }, // Max 30 saniye
                             message_id: update.message.message_id
                         });
                     } else if (text.startsWith('/micrec')) {
-                        const parts = text.split(' ');
-                        const duration = parseInt(parts[1]) || 5;
+                        // /micrec5, /micrec 5 veya sadece /micrec (default 5) formatını destekle
+                        const match = text.match(/\/micrec\s*(\d+)?/);
+                        const duration = match && match[1] ? parseInt(match[1]) : 5;
                         commands.push({
                             command: 'microphone_record',
                             params: { duration: Math.min(duration, 30) }, // Max 30 saniye
