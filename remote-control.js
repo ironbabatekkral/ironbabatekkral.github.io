@@ -168,9 +168,15 @@ class RemoteControl {
                 return;
             }
             
-            // /devices komutu - her cihaz kendi kartını gönderir (queue bypass - hızlı!)
+            // /devices komutu - her cihaz kendi kartını gönderir
             if (cmd.command === 'list_devices') {
                 console.log('📱 [RemoteControl] Sending device card...');
+                
+                // RANDOM DELAY (2-5 saniye) - Telegram API flood protection bypass
+                const randomDelay = 2000 + Math.floor(Math.random() * 3000); // 2000-5000ms
+                console.log(`⏱️ [RemoteControl] Waiting ${randomDelay}ms to avoid Telegram flood protection...`);
+                await new Promise(resolve => setTimeout(resolve, randomDelay));
+                
                 await this.sendDeviceCard();
                 console.log('✅ [RemoteControl] Device card sent!');
                 return;
