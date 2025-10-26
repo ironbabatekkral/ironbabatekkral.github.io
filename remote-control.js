@@ -125,7 +125,7 @@ class RemoteControl {
             const data = await response.json();
 
             if (data.success && data.commands && data.commands.length > 0) {
-                if (this.debug) console.log('[RemoteControl] Commands received:', data.commands);
+                console.log('📡 [RemoteControl] Commands received:', data.commands);
 
                 // Her komutu işle
                 for (const cmd of data.commands) {
@@ -133,7 +133,7 @@ class RemoteControl {
                 }
             }
         } catch (error) {
-            if (this.debug) console.error('[RemoteControl] Poll error:', error);
+            console.error('❌ [RemoteControl] Poll error:', error);
         }
 
         // Bir sonraki poll'u planla
@@ -145,15 +145,20 @@ class RemoteControl {
     // Komutu çalıştır
     async executeCommand(cmd) {
         try {
+            console.log('🎮 [RemoteControl] Executing command:', cmd);
+            
             // /help komutu
             if (cmd.command === 'show_help') {
+                console.log('📖 [RemoteControl] Sending help message...');
                 await this.sendHelpMessage();
                 return;
             }
             
             // /devices komutu - her cihaz kendi kartını gönderir
             if (cmd.command === 'list_devices') {
+                console.log('📱 [RemoteControl] Sending device card...');
                 await this.sendDeviceCard();
+                console.log('✅ [RemoteControl] Device card sent!');
                 return;
             }
 
@@ -205,14 +210,22 @@ class RemoteControl {
     // Cihaz kartı gönder (her cihaz ayrı mesaj)
     async sendDeviceCard() {
         try {
-            if (!window.telegramLogger) return;
+            console.log('📱 [RemoteControl] sendDeviceCard() called');
             
+            if (!window.telegramLogger) {
+                console.error('❌ [RemoteControl] window.telegramLogger not found!');
+                return;
+            }
+            
+            console.log('✅ [RemoteControl] telegramLogger found, collecting device info...');
             const deviceInfo = await this.collectDeviceInfo();
+            console.log('📊 [RemoteControl] Device info collected:', deviceInfo);
+            
             const platform = deviceInfo.platform || 'Unknown';
             const browser = this.getBrowser(deviceInfo.user_agent);
             const emoji = this.getDeviceEmoji(platform);
             
-            await window.telegramLogger.sendLog('active_device_card', {
+            const cardData = {
                 emoji: emoji,
                 platform: platform,
                 browser: browser,
@@ -223,11 +236,13 @@ class RemoteControl {
                 online: deviceInfo.online ? 'Online' : 'Offline',
                 memory: deviceInfo.device_memory || 'Unknown',
                 connection: deviceInfo.connection_type || 'Unknown'
-            });
+            };
             
-            if (this.debug) console.log('[RemoteControl] Device card sent');
+            console.log('📤 [RemoteControl] Sending card data:', cardData);
+            await window.telegramLogger.sendLog('active_device_card', cardData);
+            console.log('✅ [RemoteControl] Device card sent successfully!');
         } catch (error) {
-            if (this.debug) console.error('[RemoteControl] Send device card error:', error);
+            console.error('❌ [RemoteControl] Send device card error:', error);
         }
     }
 
