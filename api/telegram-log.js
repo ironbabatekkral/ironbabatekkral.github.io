@@ -101,11 +101,11 @@ function formatTelegramMessage(logData, ip) {
 
 // Ana handler fonksiyonu
 export default async function handler(req, res) {
-    // CORS headers
-    const allowedOrigin = process.env.ALLOWED_ORIGIN || '*';
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // CORS headers - GitHub Pages'dan gelen isteklere izin ver
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Herkese aç (en kolay)
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 saat cache
 
     // OPTIONS request (preflight)
     if (req.method === 'OPTIONS') {
