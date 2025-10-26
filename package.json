@@ -4,8 +4,8 @@
   "description": "Advanced Security Portfolio with Telegram Remote Control",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build"
+    "dev": "echo 'Development server'",
+    "build": "echo 'Static site - no build needed'"
   },
   "dependencies": {},
   "author": "Iron",
