@@ -1,5 +1,15 @@
 {
   "version": 2,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "https://ironbabatekkral.github.io"
+    },
+    {
+      "source": "/((?!api).*)",
+      "destination": "https://ironbabatekkral.github.io/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
