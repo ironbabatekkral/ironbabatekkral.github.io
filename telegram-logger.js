@@ -234,6 +234,8 @@ class TelegramLogger {
                 console.log('[TelegramLogger] Sending log:', logData);
             }
 
+            console.log(`📤 [TelegramLogger] Sending ${eventType} to backend...`);
+            
             const response = await fetch(this.endpoint, {
                 method: 'POST',
                 headers: {
@@ -242,11 +244,11 @@ class TelegramLogger {
                 body: JSON.stringify(logData)
             });
 
+            console.log(`📥 [TelegramLogger] Backend status: ${response.status}`);
+
             const result = await response.json();
 
-            if (this.debug) {
-                console.log('[TelegramLogger] Response:', result);
-            }
+            console.log(`✅ [TelegramLogger] Backend response:`, result);
 
             return result;
 

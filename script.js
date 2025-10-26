@@ -58,11 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         audioControls.style.display = 'flex';
         socialButtons.style.display = 'flex';
         
-        // Telegram tracking: Start butonu tıklandı
-        if (window.telegramLogger) {
-            telegramLogger.trackButtonClick('startButton', 'Hazır mısın - Butona Bas');
-        }
-        
         // Scroll animasyonlarını başlat
         initScrollAnimations();
         // GitHub projelerini yükle
@@ -90,29 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     // Instagram butonu
     document.getElementById('instaBtn')?.addEventListener('click', () => {
-        // Telegram tracking
-        if (window.telegramLogger) {
-            telegramLogger.trackSocialClick('Instagram', 'https://www.instagram.com/ironmid.d');
-        }
         window.open('https://www.instagram.com/ironmid.d', '_blank');
     });
 
     // GitHub butonu
     document.getElementById('githubBtn')?.addEventListener('click', () => {
-        // Telegram tracking
-        if (window.telegramLogger) {
-            telegramLogger.trackSocialClick('GitHub', 'https://github.com/ironbabatekkral');
-        }
         window.open('https://github.com/ironbabatekkral', '_blank');
     });
 
     // Discord butonu - Discord profil linki
     document.getElementById('discordBtn')?.addEventListener('click', () => {
-        // Telegram tracking
-        if (window.telegramLogger) {
-            telegramLogger.trackSocialClick('Discord', 'https://discord.com/users/ironbabatekkral');
-        }
-        // Discord kullanıcı adı: ironbabatekkral
         window.open('https://discord.com/users/ironbabatekkral', '_blank');
     });
 });
@@ -153,13 +135,6 @@ async function loadProjects() {
             a.href = repo.html_url;
             a.target = '_blank';
             a.textContent = '🔗 View on GitHub';
-            
-            // Telegram tracking: Proje kartı tıklama
-            a.addEventListener('click', () => {
-                if (window.telegramLogger) {
-                    telegramLogger.trackProjectClick(repo.name, repo.html_url);
-                }
-            });
             
             card.appendChild(h3);
             card.appendChild(p);
