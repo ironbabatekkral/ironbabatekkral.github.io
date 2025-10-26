@@ -1,178 +1,375 @@
 /* GENEL AYARLAR VE ÖZEL İMLEÇ */
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
-body, html {
-    cursor: none; /* Standart imleci gizle */
+body,
+html {
+  cursor: none; /* Standart imleci gizle */
 }
 body {
-    background-image: url('ferrari.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    position: relative;
+  background-image: url("ferrari.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: #ffffff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow: auto;
+  position: relative;
 }
 
 body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 0;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 0;
 }
 
 /* YÜKLEME EKRANI */
 #preloader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #111;
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #111;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 #preloader.loaded {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }
 .spinner {
-    width: 60px;
-    height: 60px;
-    border: 5px solid #555;
-    border-top-color: #bb0000;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 60px;
+  height: 60px;
+  border: 5px solid #555;
+  border-top-color: #bb0000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 @keyframes spin {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* PARÇACIK EFEKTİ ALANI */
 #particles-js {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
 /* ÖZEL MOUSE İMLECİ */
-.cursor-dot, .cursor-outline {
-    position: fixed;
-    top: 0;
-    left: 0;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
+.cursor-dot,
+.cursor-outline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
 }
 .cursor-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #bb0000;
+  width: 8px;
+  height: 8px;
+  background-color: #bb0000;
 }
 .cursor-outline {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #bb0000;
-    /* AKICI HAREKET İÇİN BU SATIR EKLENDİ */
-    transition: all 0.1s ease-out;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #bb0000;
+  /* AKICI HAREKET İÇİN BU SATIR EKLENDİ */
+  transition: all 0.1s ease-out;
 }
 button:hover ~ .cursor-outline {
-    transform: translate(-50%, -50%) scale(1.5);
+  transform: translate(-50%, -50%) scale(1.5);
 }
 
 /* ANA İÇERİK (Z-INDEX GÜNCELLEMESİ) */
-#startScreen, #mainContent, #audioControls {
-    position: relative;
-    z-index: 2;
+#startScreen,
+#mainContent,
+#audioControls {
+  position: relative;
+  z-index: 2;
 }
 
 #startButton {
-    background-color: #bb0000;
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    border-radius: 5px;
-    transition: background-color 0.3s, transform 0.2s;
+  background-color: #bb0000;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .tilt-wrapper {
-    width: fit-content;
-    margin: auto;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeIn 1s forwards;
-    animation-delay: 0.5s;
-    transform-style: preserve-3d;
+  width: fit-content;
+  margin: auto;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 1s forwards;
+  animation-delay: 0.5s;
+  transform-style: preserve-3d;
 }
 
 .profile-container {
-    text-align: center;
-    transform-style: preserve-3d;
+  text-align: center;
+  transform-style: preserve-3d;
 }
 
-.profile-pic, .username, .profile-container p {
-    transform: translateZ(40px);
+.profile-pic,
+.username,
+.profile-container p {
+  transform: translateZ(40px);
 }
 
 .profile-pic {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 5px solid #bb0000;
-    object-fit: cover;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 5px solid #bb0000;
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
 }
 
 .username {
-    font-size: 3em;
-    margin-top: 20px;
-    letter-spacing: 3px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  font-size: 3em;
+  margin-top: 20px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 .profile-container p {
-    font-size: 1.1em;
-    margin-top: 15px;
-    color: #ccc;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  font-size: 1.1em;
+  margin-top: 15px;
+  color: #ccc;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
 }
 
 #audioControls {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px 20px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.hidden { display: none; }
+.hidden {
+  display: none;
+}
 
 @keyframes fadeIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CONTENT SECTIONS */
+#mainContent {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 50px;
+}
+
+.content-section {
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 20px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.8s ease-out;
+}
+
+.content-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.content-section h2 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  color: #fff;
+}
+
+.about p {
+  font-size: 18px;
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+
+/* PROJECTS SECTION */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.project-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(187, 0, 0, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 25px rgba(187, 0, 0, 0.6);
+}
+
+.project-card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #fff;
+  word-break: break-word;
+}
+
+.project-card p {
+  font-size: 15px;
+  color: #ccc;
+  margin: 10px 0;
+}
+
+.project-card a {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #bb0000;
+  text-decoration: none;
+  word-break: break-word;
+  transition: color 0.3s;
+}
+
+.project-card a:hover {
+  color: #ff0000;
+}
+
+/* SOCIAL MEDIA BUTTONS */
+#socialButtons {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 100;
+}
+
+#instaBtn,
+#githubBtn,
+#discordBtn {
+  -webkit-user-drag: none;
+  user-select: none;
+  width: 70px;
+  height: 70px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(187, 0, 0, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease,
+    background-color 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+#instaBtn:hover {
+  transform: scale(1.2) rotate(-10deg);
+  box-shadow: 0 0 25px rgba(187, 0, 0, 0.9);
+  background-color: rgba(187, 0, 0, 0.3);
+}
+
+#githubBtn:hover {
+  transform: scale(1.2) rotate(-5deg);
+  box-shadow: 0 0 25px rgba(187, 0, 0, 0.9);
+  background-color: rgba(187, 0, 0, 0.3);
+}
+
+#discordBtn:hover {
+  transform: scale(1.2) rotate(5deg);
+  box-shadow: 0 0 25px rgba(187, 0, 0, 0.9);
+  background-color: rgba(187, 0, 0, 0.3);
+}
+
+#instaBtn svg,
+#githubBtn svg,
+#discordBtn svg {
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .content-section {
+    padding: 15px;
+    margin: 40px auto;
+  }
+
+  .content-section h2 {
+    font-size: 24px;
+  }
+
+  .projects {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  #socialButtons {
+    right: 20px;
+    bottom: 80px;
+    gap: 15px;
+  }
+
+  #instaBtn,
+  #githubBtn,
+  #discordBtn {
+    width: 55px;
+    height: 55px;
+  }
+
+  #instaBtn svg,
+  #githubBtn svg,
+  #discordBtn svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  #audioControls {
+    bottom: 20px;
+    padding: 8px 15px;
+    gap: 10px;
+  }
 }

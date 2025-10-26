@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // KABA KUVVET: Sayfa açılır açılmaz, CSS'e güvenmeden biz kendimiz gizleyelim.
 document.getElementById('mainContent').style.display = 'none';
 document.getElementById('audioControls').style.display = 'none';
+document.getElementById('socialButtons').style.display = 'none';
 
 document.addEventListener('DOMContentLoaded', () => {
     const startScreen = document.getElementById('startScreen');
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const music = document.getElementById('backgroundMusic');
     const audioControls = document.getElementById('audioControls');
     const volumeSlider = document.getElementById('volumeSlider');
+    const socialButtons = document.getElementById('socialButtons');
 
     music.src = 'yanarortalik.mp4';
     music.volume = volumeSlider.value / 100;
@@ -67,6 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
         startScreen.style.display = 'none';
         mainContent.style.display = 'block';
         audioControls.style.display = 'flex';
+        socialButtons.style.display = 'flex';
+        
+        // Scroll animasyonlarını başlat
+        initScrollAnimations();
+        // GitHub projelerini yükle
+        loadProjects();
     });
 
     volumeSlider.addEventListener('input', (e) => {
@@ -83,3 +91,93 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// --- YENİ EKLENMİŞ ÖZELLİKLER ---
+
+// SOSYAL MEDYA BUTONLARI
+document.addEventListener('DOMContentLoaded', () => {
+    // Instagram butonu
+    document.getElementById('instaBtn')?.addEventListener('click', () => {
+        window.open('https://www.instagram.com/ironmid.d', '_blank');
+    });
+
+    // GitHub butonu
+    document.getElementById('githubBtn')?.addEventListener('click', () => {
+        window.open('https://github.com/ironbabatekkral', '_blank');
+    });
+
+    // Discord butonu - Discord profil linki
+    document.getElementById('discordBtn')?.addEventListener('click', () => {
+        // Discord kullanıcı adı: ironbabatekkral
+        window.open('https://discord.com/users/ironbabatekkral', '_blank');
+    });
+});
+
+// SCROLL ANİMASYONLARI
+function initScrollAnimations() {
+    const sections = document.querySelectorAll('.content-section');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.2 });
+
+    sections.forEach(section => observer.observe(section));
+}
+
+// GITHUB PROJELERİNİ YÜKLEME
+async function loadProjects() {
+    try {
+        const response = await fetch('https://api.github.com/users/ironbabatekkral/repos');
+        const repos = await response.json();
+        const container = document.getElementById('projects');
+        
+        // İlk 6 projeyi göster
+        repos.slice(0, 6).forEach(repo => {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            
+            const h3 = document.createElement('h3');
+            h3.textContent = repo.name || 'Unnamed';
+            
+            const p = document.createElement('p');
+            p.textContent = repo.description || 'No description available';
+            
+            const a = document.createElement('a');
+            a.href = repo.html_url;
+            a.target = '_blank';
+            a.textContent = '🔗 View on GitHub';
+            
+            card.appendChild(h3);
+            card.appendChild(p);
+            card.appendChild(a);
+            container.appendChild(card);
+        });
+    } catch (err) {
+        console.error('GitHub projeleri yüklenemedi:', err);
+        const container = document.getElementById('projects');
+        container.innerHTML = '<p style="color: #ccc;">Projeler yüklenemedi.</p>';
+    }
+}
+
+// SEÇİM VE SAĞ TIKLAMA KORUMASI (İSTEĞE BAĞLI)
+// İsterseniz bu kısmı açabilirsiniz
+/*
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey && (e.key === 'a' || e.key === 'A')) || 
+        (e.ctrlKey && (e.key === 'c' || e.key === 'C'))) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+document.addEventListener('contextmenu', function(e) { 
+    e.preventDefault(); 
+});
+
+document.addEventListener('selectstart', function(e) { 
+    e.preventDefault(); 
+});
+*/
