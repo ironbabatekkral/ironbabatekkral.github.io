@@ -1,0 +1,36 @@
+# Environment variables (GÜVENLİK - ASLA COMMIT ETME!)
+.env
+.env.local
+.env.production
+
+# Özel token notları (GÜVENLİK - ASLA COMMIT ETME!)
+SENIN_TOKENLAR.txt
+*_TOKENLAR.txt
+
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+
+# Node modules (eğer npm kullanıyorsan)
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+test-*.js
+*.test.js
+

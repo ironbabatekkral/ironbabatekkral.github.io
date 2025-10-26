@@ -1,22 +1,13 @@
-/* GENEL AYARLAR VE ÖZEL İMLEÇ */
+/* GENEL AYARLAR */
 * {
   box-sizing: border-box;
 }
-body,
-html {
-  cursor: none; /* Standart imleci gizle */
-}
 body {
-  background: linear-gradient(
-    135deg,
-    #0a0e27 0%,
-    #1a1a2e 25%,
-    #16213e 50%,
-    #0f3460 75%,
-    #1a1a2e 100%
-  );
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background-image: url("kali-prompt.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: #ffffff;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
@@ -28,18 +19,6 @@ body {
   position: relative;
 }
 
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
 body::before {
   content: "";
   position: absolute;
@@ -47,7 +26,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 0;
 }
 
@@ -93,39 +72,39 @@ body::before {
   z-index: 1;
 }
 
-/* ÖZEL MOUSE İMLECİ */
-.cursor-dot,
-.cursor-outline {
-  position: fixed;
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-}
-.cursor-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #bb0000;
-}
-.cursor-outline {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #bb0000;
-  /* AKICI HAREKET İÇİN BU SATIR EKLENDİ */
-  transition: all 0.1s ease-out;
-}
-button:hover ~ .cursor-outline {
-  transform: translate(-50%, -50%) scale(1.5);
-}
-
 /* ANA İÇERİK (Z-INDEX GÜNCELLEMESİ) */
 #startScreen,
 #mainContent,
 #audioControls {
   position: relative;
   z-index: 2;
+}
+
+/* START SCREEN - SİYAH ARKA PLAN */
+#startScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+}
+
+#startScreen h1 {
+  font-size: 3em;
+  margin-bottom: 30px;
+  color: #bb0000;
+  text-shadow: 0 0 20px rgba(187, 0, 0, 0.8);
+}
+
+/* START SCREEN AKTİFKEN PARTICLES GİZLE */
+body:has(#startScreen:not(.hidden)) #particles-js {
+  display: none;
 }
 
 #startButton {
@@ -136,6 +115,12 @@ button:hover ~ .cursor-outline {
   font-size: 1.2em;
   border-radius: 5px;
   transition: background-color 0.3s, transform 0.2s;
+  cursor: pointer;
+}
+
+#startButton:hover {
+  background-color: #ff0000;
+  transform: scale(1.1);
 }
 
 .tilt-wrapper {
@@ -243,24 +228,129 @@ button:hover ~ .cursor-outline {
   margin-bottom: 20px;
 }
 
-/* TERMINAL SECTION */
-.terminal-container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
-  border: 2px solid rgba(187, 0, 0, 0.5);
-  box-shadow: 0 0 30px rgba(187, 0, 0, 0.4);
-  overflow: hidden;
+/* LOG SYSTEM SECTION */
+.log-section {
+  max-width: 1000px;
+  margin: 60px auto;
 }
 
-.terminal-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 5px;
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+.terminal-log {
+  background: #0a0a0a;
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  padding: 20px;
+  font-family: "Courier New", monospace;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.log-header {
+  color: #00ff00;
+  font-size: 16px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #00ff00;
+}
+
+.log-user {
+  color: #00ff00;
+  font-weight: bold;
+}
+
+.log-path {
+  color: #0080ff;
+  font-weight: bold;
+}
+
+.log-command {
+  color: #ffffff;
+}
+
+.log-content {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.log-line {
+  margin: 5px 0;
+  animation: logFadeIn 0.5s ease-in;
+  color: #cccccc;
+}
+
+@keyframes logFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.log-time {
+  color: #888888;
+}
+
+.log-info {
+  color: #0080ff;
+  font-weight: bold;
+}
+
+.log-success {
+  color: #00ff00;
+  font-weight: bold;
+}
+
+.log-warning {
+  color: #ffaa00;
+  font-weight: bold;
+}
+
+.log-error {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.log-footer {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #00ff00;
+}
+
+.log-cursor {
+  color: #00ff00;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Terminal scrollbar styling */
+.terminal-log::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-log::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.terminal-log::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+}
+
+.terminal-log::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
 }
 
 /* PROJECTS SECTION */
@@ -382,6 +472,31 @@ button:hover ~ .cursor-outline {
   .projects {
     grid-template-columns: 1fr;
     gap: 15px;
+  }
+
+  /* Log system mobile */
+  .terminal-log {
+    padding: 15px;
+    font-size: 12px;
+    max-height: 400px;
+  }
+
+  .log-header {
+    font-size: 13px;
+  }
+
+  .log-content {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  #startScreen h1 {
+    font-size: 2em;
+  }
+
+  #startButton {
+    padding: 12px 25px;
+    font-size: 1em;
   }
 
   #socialButtons {

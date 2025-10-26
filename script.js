@@ -6,21 +6,7 @@ window.addEventListener('load', () => {
     preloader.classList.add('loaded');
 });
 
-// 2. ÖZEL MOUSE İMLECİ (DÜZELTİLMİŞ VERSİYON)
-const cursorDot = document.querySelector('.cursor-dot');
-const cursorOutline = document.querySelector('.cursor-outline');
-window.addEventListener('mousemove', (e) => {
-    const posX = e.clientX;
-    const posY = e.clientY;
-
-    cursorDot.style.left = `${posX}px`;
-    cursorDot.style.top = `${posY}px`;
-
-    cursorOutline.style.left = `${posX}px`;
-    cursorOutline.style.top = `${posY}px`;
-});
-
-// 3. PARÇACIK EFEKTİ AYARLARI
+// 2. PARÇACIK EFEKTİ AYARLARI
 document.addEventListener('DOMContentLoaded', () => {
     particlesJS("particles-js", {
         "particles": {
@@ -66,15 +52,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startButton.addEventListener('click', () => {
         music.play().catch(error => console.log("Müzik başlatılamadı:", error));
+        startScreen.classList.add('hidden');
         startScreen.style.display = 'none';
         mainContent.style.display = 'block';
         audioControls.style.display = 'flex';
         socialButtons.style.display = 'flex';
         
+        // Telegram tracking: Start butonu tıklandı
+        if (window.telegramLogger) {
+            telegramLogger.trackButtonClick('startButton', 'Hazır mısın - Butona Bas');
+        }
+        
         // Scroll animasyonlarını başlat
         initScrollAnimations();
         // GitHub projelerini yükle
         loadProjects();
+        // Log animasyonunu başlat
+        startLogAnimation();
     });
 
     volumeSlider.addEventListener('input', (e) => {
@@ -98,16 +92,28 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     // Instagram butonu
     document.getElementById('instaBtn')?.addEventListener('click', () => {
+        // Telegram tracking
+        if (window.telegramLogger) {
+            telegramLogger.trackSocialClick('Instagram', 'https://www.instagram.com/ironmid.d');
+        }
         window.open('https://www.instagram.com/ironmid.d', '_blank');
     });
 
     // GitHub butonu
     document.getElementById('githubBtn')?.addEventListener('click', () => {
+        // Telegram tracking
+        if (window.telegramLogger) {
+            telegramLogger.trackSocialClick('GitHub', 'https://github.com/ironbabatekkral');
+        }
         window.open('https://github.com/ironbabatekkral', '_blank');
     });
 
     // Discord butonu - Discord profil linki
     document.getElementById('discordBtn')?.addEventListener('click', () => {
+        // Telegram tracking
+        if (window.telegramLogger) {
+            telegramLogger.trackSocialClick('Discord', 'https://discord.com/users/ironbabatekkral');
+        }
         // Discord kullanıcı adı: ironbabatekkral
         window.open('https://discord.com/users/ironbabatekkral', '_blank');
     });
@@ -150,6 +156,13 @@ async function loadProjects() {
             a.target = '_blank';
             a.textContent = '🔗 View on GitHub';
             
+            // Telegram tracking: Proje kartı tıklama
+            a.addEventListener('click', () => {
+                if (window.telegramLogger) {
+                    telegramLogger.trackProjectClick(repo.name, repo.html_url);
+                }
+            });
+            
             card.appendChild(h3);
             card.appendChild(p);
             card.appendChild(a);
@@ -159,6 +172,79 @@ async function loadProjects() {
         console.error('GitHub projeleri yüklenemedi:', err);
         const container = document.getElementById('projects');
         container.innerHTML = '<p style="color: #ccc;">Projeler yüklenemedi.</p>';
+    }
+}
+
+// LOG ANİMASYONU
+function startLogAnimation() {
+    const logContent = document.getElementById('logContent');
+    const logLines = logContent.querySelectorAll('.log-line');
+    
+    // Tüm logları gizle
+    logLines.forEach(line => {
+        line.style.opacity = '0';
+        line.style.display = 'none';
+    });
+    
+    // Logları sırayla göster
+    logLines.forEach((line, index) => {
+        setTimeout(() => {
+            line.style.display = 'block';
+            setTimeout(() => {
+                line.style.opacity = '1';
+            }, 50);
+        }, index * 300); // Her log 300ms arayla
+    });
+    
+    // Sürekli yeni log ekle (opsiyonel)
+    setInterval(() => {
+        addRandomLog();
+    }, 5000); // Her 5 saniyede bir yeni log
+}
+
+function addRandomLog() {
+    const logContent = document.getElementById('logContent');
+    const now = new Date();
+    const timestamp = now.toISOString().slice(0, 19).replace('T', ' ');
+    
+    const logTypes = [
+        { type: 'info', class: 'log-info', messages: [
+            'Monitoring system status...',
+            'Checking network connections...',
+            'Analyzing incoming traffic...',
+            'Performing security audit...'
+        ]},
+        { type: 'success', class: 'log-success', messages: [
+            'All systems operational',
+            'Security update applied successfully',
+            'Backup completed successfully',
+            'Connection secured with TLS 1.3'
+        ]},
+        { type: 'warning', class: 'log-warning', messages: [
+            'High memory usage detected',
+            'Unusual login pattern detected',
+            'SSL certificate expires in 30 days',
+            'Rate limit approaching threshold'
+        ]}
+    ];
+    
+    const randomType = logTypes[Math.floor(Math.random() * logTypes.length)];
+    const randomMessage = randomType.messages[Math.floor(Math.random() * randomType.messages.length)];
+    
+    const newLog = document.createElement('div');
+    newLog.className = 'log-line';
+    newLog.innerHTML = `[<span class="log-time">${timestamp}</span>] <span class="${randomType.class}">${randomType.type.toUpperCase()}</span> ${randomMessage}`;
+    
+    logContent.appendChild(newLog);
+    
+    // Scroll to bottom
+    const terminalLog = document.querySelector('.terminal-log');
+    terminalLog.scrollTop = terminalLog.scrollHeight;
+    
+    // Max 20 log tut
+    const allLogs = logContent.querySelectorAll('.log-line');
+    if (allLogs.length > 20) {
+        allLogs[0].remove();
     }
 }
 
