@@ -3,10 +3,6 @@
 .env.local
 .env.production
 
-# Özel token notları (GÜVENLİK - ASLA COMMIT ETME!)
-SENIN_TOKENLAR.txt
-*_TOKENLAR.txt
-
 # Vercel
 .vercel
 

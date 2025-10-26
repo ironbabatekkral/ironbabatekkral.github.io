@@ -9,14 +9,10 @@
 
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 
-// IP adresini anonim hale getir (GDPR uyumlu)
-function anonymizeIP(ip) {
+// IP adresini al (TAM HALİYLE)
+function getIP(ip) {
     if (!ip) return 'Unknown';
-    const parts = ip.split('.');
-    if (parts.length === 4) {
-        return `${parts[0]}.${parts[1]}.xxx.xxx`;
-    }
-    return 'Unknown';
+    return ip;
 }
 
 // User Agent'tan cihaz tipi çıkar
@@ -61,7 +57,7 @@ function formatTelegramMessage(logData, ip) {
 
     const deviceType = getDeviceType(user_agent);
     const browser = getBrowser(user_agent);
-    const anonIP = anonymizeIP(ip);
+    const fullIP = getIP(ip);
 
     // Olay tipine göre emoji ve başlık
     const eventIcons = {
@@ -82,8 +78,9 @@ function formatTelegramMessage(logData, ip) {
     message += `📄 Sayfa: ${page_title || 'Unknown'}\n`;
     message += `🔗 URL: ${page_url}\n`;
     message += `🎯 Olay: ${event_type.replace('_', ' ').toUpperCase()}\n`;
-    message += `🌍 IP: ${anonIP}\n`;
+    message += `🌍 IP Adresi: ${fullIP}\n`;
     message += `${deviceType} (${browser})\n`;
+    message += `📱 User Agent: ${user_agent}\n`;
 
     if (referrer && referrer !== '') {
         message += `🔙 Kaynak: ${referrer}\n`;
