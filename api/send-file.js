@@ -62,26 +62,49 @@ export default async function handler(req, res) {
                 return res.status(400).json({ success: false, error: 'Invalid file_type' });
         }
 
-        // FormData oluştur
-        const FormData = (await import('form-data')).default;
-        const form = new FormData();
-        form.append('chat_id', chatId);
-        form.append(formFieldName, buffer, { filename: filename });
+        // Multipart FormData oluştur (Node.js native)
+        const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
         
+        let formBody = '';
+        
+        // chat_id ekle
+        formBody += `--${boundary}\r\n`;
+        formBody += `Content-Disposition: form-data; name="chat_id"\r\n\r\n`;
+        formBody += `${chatId}\r\n`;
+        
+        // caption ekle (varsa)
         if (caption) {
-            form.append('caption', caption);
+            formBody += `--${boundary}\r\n`;
+            formBody += `Content-Disposition: form-data; name="caption"\r\n\r\n`;
+            formBody += `${caption}\r\n`;
         }
-
+        
+        // reply_to_message_id ekle (varsa)
         if (message_id) {
-            form.append('reply_to_message_id', message_id);
+            formBody += `--${boundary}\r\n`;
+            formBody += `Content-Disposition: form-data; name="reply_to_message_id"\r\n\r\n`;
+            formBody += `${message_id}\r\n`;
         }
+        
+        // Dosya ekle
+        formBody += `--${boundary}\r\n`;
+        formBody += `Content-Disposition: form-data; name="${formFieldName}"; filename="${filename}"\r\n`;
+        formBody += `Content-Type: ${file_type === 'photo' ? 'image/jpeg' : file_type === 'video' ? 'video/webm' : 'audio/ogg'}\r\n\r\n`;
+        
+        const formBodyBuffer = Buffer.concat([
+            Buffer.from(formBody, 'utf8'),
+            buffer,
+            Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8')
+        ]);
 
         // Telegram'a gönder
         const telegramUrl = `${TELEGRAM_API_URL}${botToken}/${telegramEndpoint}`;
         const telegramResponse = await fetch(telegramUrl, {
             method: 'POST',
-            body: form,
-            headers: form.getHeaders()
+            body: formBodyBuffer,
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`
+            }
         });
 
         const telegramData = await telegramResponse.json();
