@@ -4,10 +4,9 @@
 
 class TelegramLogger {
     constructor(config = {}) {
-        // Backend endpoint (Vercel/Netlify serverless function)
-        // NOT: Vercel'e deploy ettikten sonra, Vercel URL'ini buraya ekle
-        // Örnek: 'https://ironbabatekkral.vercel.app/api/telegram-log'
-        this.endpoint = config.endpoint || '/api/telegram-log';
+        // Backend endpoint (Vercel serverless function)
+        // ⚠️ DEĞİŞTİR: Vercel'den aldığın URL'i buraya yaz!
+        this.endpoint = config.endpoint || 'https://YOUR_VERCEL_URL.vercel.app/api/telegram-log';
         
         // Rate limiting (aynı event 5 saniye içinde tekrar gönderilmez)
         this.rateLimitMs = config.rateLimitMs || 5000;
