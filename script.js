@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const volumeSlider = document.getElementById('volumeSlider');
     const socialButtons = document.getElementById('socialButtons');
 
-    music.src = 'yanarortalik.mp4';
+    music.src = 'MR. Robot Main Theme  (What\'s Your Ask-16374     Mac Quayle )-EN.mp4';
     music.volume = volumeSlider.value / 100;
 
     startButton.addEventListener('click', () => {

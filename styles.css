@@ -7,11 +7,16 @@ html {
   cursor: none; /* Standart imleci gizle */
 }
 body {
-  background-image: url("ferrari.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background: linear-gradient(
+    135deg,
+    #0a0e27 0%,
+    #1a1a2e 25%,
+    #16213e 50%,
+    #0f3460 75%,
+    #1a1a2e 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   color: #ffffff;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
@@ -23,6 +28,18 @@ body {
   position: relative;
 }
 
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 body::before {
   content: "";
   position: absolute;
@@ -30,7 +47,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
   z-index: 0;
 }
 
@@ -224,6 +241,26 @@ button:hover ~ .cursor-outline {
   font-size: 18px;
   opacity: 0.85;
   margin-bottom: 20px;
+}
+
+/* TERMINAL SECTION */
+.terminal-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  border: 2px solid rgba(187, 0, 0, 0.5);
+  box-shadow: 0 0 30px rgba(187, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.terminal-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
 }
 
 /* PROJECTS SECTION */
