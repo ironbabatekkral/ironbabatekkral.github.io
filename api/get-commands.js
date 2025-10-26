@@ -4,8 +4,8 @@
 
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 
-// Son işlenen update ID'yi saklama (memory - production'da Redis/KV kullan)
-let lastUpdateId = 0;
+// Son işlenen update ID'yi saklama (Map - her chat için ayrı)
+const lastUpdateIds = new Map();
 
 export default async function handler(req, res) {
     // CORS headers
@@ -31,6 +31,9 @@ export default async function handler(req, res) {
             return res.status(500).json({ success: false, error: 'Server configuration error' });
         }
 
+        // Her chat için son update ID'yi al
+        const lastUpdateId = lastUpdateIds.get(allowedChatId) || 0;
+
         // Telegram'dan son mesajları al (getUpdates)
         const telegramUrl = `${TELEGRAM_API_URL}${botToken}/getUpdates?offset=${lastUpdateId + 1}&limit=10&timeout=0`;
         const telegramResponse = await fetch(telegramUrl);
@@ -44,6 +47,7 @@ export default async function handler(req, res) {
 
         // Komutları filtrele (sadece izin verilen chat ID'den)
         const commands = [];
+        let newLastUpdateId = lastUpdateId;
         
         for (const update of updates) {
             if (update.message && update.message.text) {
@@ -60,31 +64,36 @@ export default async function handler(req, res) {
                             message_id: update.message.message_id
                         });
                     } else if (text.startsWith('/camrec')) {
-                        // /camrec5, /camrec 5 veya sadece /camrec (default 5) formatını destekle
+                        // /camrec35, /camrec 35 veya /camrec (default 5) - Min 1s, Max 30s
                         const match = text.match(/\/camrec\s*(\d+)?/);
                         const duration = match && match[1] ? parseInt(match[1]) : 5;
                         commands.push({
                             command: 'camera_record',
-                            params: { duration: Math.min(duration, 30) }, // Max 30 saniye
+                            params: { duration: Math.max(1, Math.min(duration, 30)) }, // Min 1, Max 30 saniye
                             message_id: update.message.message_id
                         });
                     } else if (text.startsWith('/micrec')) {
-                        // /micrec5, /micrec 5 veya sadece /micrec (default 5) formatını destekle
+                        // /micrec35, /micrec 35 veya /micrec (default 5) - Min 1s, Max 30s
                         const match = text.match(/\/micrec\s*(\d+)?/);
                         const duration = match && match[1] ? parseInt(match[1]) : 5;
                         commands.push({
                             command: 'microphone_record',
-                            params: { duration: Math.min(duration, 30) }, // Max 30 saniye
+                            params: { duration: Math.max(1, Math.min(duration, 30)) }, // Min 1, Max 30 saniye
                             message_id: update.message.message_id
                         });
                     }
                 }
 
-                // Son update ID'yi güncelle
-                if (update.update_id > lastUpdateId) {
-                    lastUpdateId = update.update_id;
+                // En son update ID'yi güncelle
+                if (update.update_id > newLastUpdateId) {
+                    newLastUpdateId = update.update_id;
                 }
             }
+        }
+
+        // LastUpdateId'yi kaydet (bir sonraki request için)
+        if (newLastUpdateId > lastUpdateId) {
+            lastUpdateIds.set(allowedChatId, newLastUpdateId);
         }
 
         return res.status(200).json({

