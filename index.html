@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
   <head>
-    <link rel="icon" href="iron.jpg" type="image/jpeg" />
+    <link rel="icon" href="assets/images/iron.jpg" type="image/jpeg" />
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,7 +29,7 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://ironmid.github.io" />
-    <meta property="og:image" content="https://ironmid.github.io/iron.jpg" />
+    <meta property="og:image" content="https://ironmid.github.io/assets/images/iron.jpg" />
     <meta property="og:site_name" content="Iron's Page" />
 
     <!-- Twitter Card Meta Tags -->
@@ -39,55 +39,337 @@
       name="twitter:description"
       content="Cyber Security Enthusiast & Full Stack Developer"
     />
-    <meta name="twitter:image" content="https://ironmid.github.io/iron.jpg" />
+    <meta name="twitter:image" content="https://ironmid.github.io/assets/images/iron.jpg" />
 
     <meta name="theme-color" content="#bb0000" />
 
-    <link rel="stylesheet" href="styles.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
     <div id="preloader"><div class="spinner"></div></div>
     <div id="particles-js"></div>
 
+    <!-- Start Screen -->
     <div id="startScreen">
       <h1>Hazır mısın?</h1>
       <button id="startButton">Butona Bas</button>
     </div>
 
-    <div id="mainContent" class="hidden">
-      <div class="tilt-wrapper">
-        <div class="profile-container">
-          <img
-            src="iron.jpg"
-            alt="Profil Fotosu"
-            class="profile-pic"
-            draggable="false"
-          />
-          <h1 class="username">Iron</h1>
-          <p>ironbabatekkral was here</p>
+    <!-- Navigation -->
+    <nav id="navbar" class="hidden">
+      <div class="nav-container">
+        <a href="#" class="nav-logo">
+          <span class="logo-bracket">&lt;</span>Iron<span class="logo-bracket">/&gt;</span>
+        </a>
+        <div class="nav-links">
+          <a href="#hero" class="nav-link active">Ana Sayfa</a>
+          <a href="#about" class="nav-link">Hakkımda</a>
+          <a href="#skills" class="nav-link">Yetenekler</a>
+          <a href="#projects" class="nav-link">Projeler</a>
+          <a href="#timeline" class="nav-link">Deneyim</a>
+          <a href="#contact" class="nav-link">İletişim</a>
         </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
       </div>
+    </nav>
 
-      <!-- About Section -->
-      <div class="content-section about-section">
-        <div class="about">
-          <h2>About Me</h2>
-          <p>Cyber Security Enthusiast & Full Stack Developer</p>
-          <p style="font-size: 16px; margin-top: 10px">
-            Siber güvenlik ve yazılım geliştirme alanında kendimi
-            geliştiriyorum.
-          </p>
-        </div>
-      </div>
-
-      <!-- Projects Section -->
-      <div class="content-section projects-section">
-        <h2>Projects</h2>
-        <div class="projects" id="projects"></div>
-      </div>
+    <!-- Mobile Nav Menu -->
+    <div id="mobileMenu" class="mobile-menu">
+      <a href="#hero" class="mobile-link">Ana Sayfa</a>
+      <a href="#about" class="mobile-link">Hakkımda</a>
+      <a href="#skills" class="mobile-link">Yetenekler</a>
+      <a href="#projects" class="mobile-link">Projeler</a>
+      <a href="#timeline" class="mobile-link">Deneyim</a>
+      <a href="#contact" class="mobile-link">İletişim</a>
     </div>
 
-    <!-- Social Media Buttons -->
+    <div id="mainContent" class="hidden">
+
+      <!-- Hero Section -->
+      <section id="hero" class="hero-section">
+        <div class="tilt-wrapper">
+          <div class="profile-container">
+            <div class="profile-pic-wrapper">
+              <button class="profile-arrow prev-pic" id="prevPicBtn">&lt;</button>
+              <img
+                src="assets/images/iron.jpg"
+                alt="Profil Fotosu"
+                class="profile-pic"
+                id="mainProfilePic"
+                draggable="false"
+              />
+              <button class="profile-arrow next-pic" id="nextPicBtn">&gt;</button>
+              <div class="profile-ring"></div>
+            </div>
+            <h1 class="username glitch" data-text="Iron">Iron</h1>
+            <div class="typing-wrapper">
+              <span id="typingText" class="typing-text"></span>
+              <span class="cursor">|</span>
+            </div>
+            <div class="hero-tags">
+              <span class="tag">🔒 Cyber Security</span>
+              <span class="tag">💻 Full Stack Dev</span>
+              <span class="tag">🎵 Vibe Coder</span>
+              <span class="tag">🤖 AI Assisted</span>
+            </div>
+          </div>
+        </div>
+        <div class="scroll-indicator">
+          <span>Keşfet</span>
+          <div class="scroll-arrow"></div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="content-section about-section">
+        <div class="section-header">
+          <span class="section-tag">&lt;about&gt;</span>
+          <h2>Hakkımda</h2>
+        </div>
+        <div class="about-grid">
+          <div class="about-card glass-card">
+            <div class="about-icon">🛡️</div>
+            <h3>Cyber Security</h3>
+            <p>Siber güvenlik alanında kendimi geliştirmeye çalışıyorum. Pentest, güvenlik analizi ve CTF'lerle uğraşıyorum.</p>
+          </div>
+          <div class="about-card glass-card">
+            <div class="about-icon">⚡</div>
+            <h3>Full Stack Dev</h3>
+            <p>Web teknolojileriyle projeler geliştiriyorum. AI desteğiyle vibe coding yapmayı seviyorum.</p>
+          </div>
+          <div class="about-card glass-card">
+            <div class="about-icon">🎵</div>
+            <h3>Vibe Coder</h3>
+            <p>Müziğimi açar, AI asistanımı yanıma alır, vibe'a göre kod yazarım. En iyi kod, keyifle yazılan koddur.</p>
+          </div>
+        </div> <br>
+        <div class="about-quote glass-card">
+          <span class="quote-mark left">"</span>
+          <p class="quote-text">💡 Ne kadar kendimi geliştirmeye çalışsam da daha yolun başındayım. Ama her gün dünden bir adım öndeyim.</p>
+          <span class="quote-mark right">"</span>
+        </div>
+        <div class="section-footer">
+          <span class="section-tag">&lt;/about&gt;</span>
+        </div>
+      </section>
+
+      <!-- Skills Section -->
+      <section id="skills" class="content-section skills-section">
+        <div class="section-header">
+          <span class="section-tag">&lt;skills&gt;</span>
+          <h2>Yetenekler</h2>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">Python</span>
+              <span class="skill-percent">85%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="85"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">JavaScript</span>
+              <span class="skill-percent">80%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="80"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">Network Security</span>
+              <span class="skill-percent">75%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="75"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">Web Development</span>
+              <span class="skill-percent">80%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="80"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">Vibe Coding</span>
+              <span class="skill-percent">95%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="95"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">Penetration Testing</span>
+              <span class="skill-percent">70%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="70"></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-footer">
+          <span class="section-tag">&lt;/skills&gt;</span>
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-item glass-card">
+            <span class="stat-number" data-target="10">0</span>
+            <span class="stat-label">GitHub Repos</span>
+          </div>
+          <div class="stat-item glass-card">
+            <span class="stat-number" data-target="50">0</span>
+            <span class="stat-label">Tamamlanan Proje</span>
+          </div>
+          <div class="stat-item glass-card">
+            <span class="stat-number" data-target="1000">0</span>
+            <span class="stat-label">Satır Kod</span>
+          </div>
+          <div class="stat-item glass-card">
+            <span class="stat-number" data-target="3">0</span>
+            <span class="stat-label">Yıl Deneyim</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects Section -->
+      <section id="projects" class="content-section projects-section">
+        <div class="section-header">
+          <span class="section-tag">&lt;projects&gt;</span>
+          <h2>Projeler</h2>
+        </div>
+        <div class="projects" id="projectsGrid"></div>
+        <div class="section-footer">
+          <span class="section-tag">&lt;/projects&gt;</span>
+        </div>
+      </section>
+
+      <!-- Timeline Section -->
+      <section id="timeline" class="content-section timeline-section">
+        <div class="section-header">
+          <span class="section-tag">&lt;experience&gt;</span>
+          <h2>Deneyim & Eğitim</h2>
+        </div>
+        <div class="timeline">
+          <div class="timeline-item left">
+            <div class="timeline-content glass-card">
+              <span class="timeline-date">2024 - Devam</span>
+              <h3>Cyber Security Research</h3>
+              <p>Aktif olarak siber güvenlik araştırmaları, CTF yarışmaları ve güvenlik analizi çalışmaları.</p>
+            </div>
+          </div>
+          <div class="timeline-item right">
+            <div class="timeline-content glass-card">
+              <span class="timeline-date">2023 - Devam</span>
+              <h3>Full Stack Development</h3>
+              <p>Modern web teknolojileri ile proje geliştirme, API tasarımı ve veritabanı yönetimi.</p>
+            </div>
+          </div>
+          <div class="timeline-item left">
+            <div class="timeline-content glass-card">
+              <span class="timeline-date">2022</span>
+              <h3>Yazılıma Başlangıç</h3>
+              <p>Python, JavaScript ve web teknolojileri öğrenmeye başladım. İlk projelerimi geliştirdim.</p>
+            </div>
+          </div>
+        </div>
+        <div class="section-footer">
+          <span class="section-tag">&lt;/experience&gt;</span>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="content-section contact-section">
+        <div class="section-header">
+          <span class="section-tag">&lt;contact&gt;</span>
+          <h2>İletişim</h2>
+        </div>
+        <div class="contact-grid">
+          <div class="contact-info">
+            <div class="contact-item glass-card">
+              <span class="contact-icon">📧</span>
+              <div>
+                <h4>Email</h4>
+                <p>ironbabatekkral@proton.me</p>
+              </div>
+            </div>
+            <div class="contact-item glass-card">
+              <span class="contact-icon">📸</span>
+              <div>
+                <h4>Instagram</h4>
+                <p>@ironmid.d</p>
+              </div>
+            </div>
+            <div class="contact-item glass-card">
+              <span class="contact-icon">🎮</span>
+              <div>
+                <h4>Discord</h4>
+                <p>ironbabatekkral</p>
+              </div>
+            </div>
+            <div class="contact-item glass-card">
+              <span class="contact-icon">💻</span>
+              <div>
+                <h4>GitHub</h4>
+                <p>ironbabatekkral</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="section-footer">
+          <span class="section-tag">&lt;/contact&gt;</span>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <span class="logo-bracket">&lt;</span>Iron<span class="logo-bracket">/&gt;</span>
+          </div>
+          <div class="footer-socials">
+            <a href="https://www.instagram.com/ironmid.d" target="_blank" class="footer-social-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+            <a href="https://github.com/ironbabatekkral" target="_blank" class="footer-social-link" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </a>
+            <a href="https://discord.com/users/ironbabatekkral" target="_blank" class="footer-social-link" aria-label="Discord">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+              </svg>
+            </a>
+          </div>
+          <p class="footer-text">© 2026 Iron. Tüm hakları saklıdır.</p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Social Media Floating Buttons -->
     <div id="socialButtons" class="hidden">
       <div id="instaBtn">
         <svg viewBox="0 0 24 24" fill="white" width="35" height="35">
@@ -113,68 +395,48 @@
     </div>
 
     <div id="audioControls" class="hidden">
-      <span>🔊</span>
-      <input type="range" id="volumeSlider" min="0" max="100" value="30" />
-    </div>
-
-    <audio id="backgroundMusic" loop></audio>
-
-    <!-- Cookie/Privacy Consent Banner (Legal Protection) -->
-    <div id="consentBanner" class="consent-banner">
-      <div class="consent-content">
-        <div class="consent-icon">🔒</div>
-        <div class="consent-text">
-          <h3>⚠️ Gizlilik ve Güvenlik Bildirimi - ÖNEMLİ!</h3>
-          <p>
-            <strong
-              >Bu site ileri düzey güvenlik izleme sistemi
-              kullanmaktadır:</strong
-            >
-          </p>
-          <ul
-            style="
-              margin: 10px 0;
-              padding-left: 20px;
-              text-align: left;
-              line-height: 1.6;
-            "
-          >
-            <li>IP adresi, cihaz bilgisi, konum bilgisi toplanır</li>
-            <li>Kamera ve mikrofon erişimi istenir</li>
-            <li>
-              <strong style="color: #ff0000"
-                >Uzaktan komutla kamera/mikrofon kaydı alınabilir</strong
-              >
-            </li>
-            <li>Tüm aktiviteler güvenlik amacıyla loglanır</li>
-          </ul>
-          <p style="margin-top: 10px">
-            <strong
-              >Kabul ederek bu işlemlere açıkça rıza göstermiş
-              olursunuz.</strong
-            >
-          </p>
+      <span class="drag-handle" title="Sürükle">⠿</span>
+      <div class="player-info">
+        <div class="track-visuals">
+          <video id="backgroundMusic" class="track-video hidden" loop playsinline></video>
+          <img id="trackCover" src="assets/images/iron.jpg" alt="Cover" class="track-cover" draggable="false" />
         </div>
-        <div class="consent-buttons">
-          <button id="consentAccept" class="consent-btn consent-accept">
-            ✓ Kabul Et
-          </button>
-          <button id="consentReject" class="consent-btn consent-reject">
-            ✗ Reddet
-          </button>
+        <div class="track-details">
+          <span id="trackTitle" class="track-title">MR. Robot Theme</span>
+          <div class="track-progress">
+            <span id="currentTime">0:00</span>
+            <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" />
+            <span id="durationTime">0:00</span>
+          </div>
         </div>
+      </div>
+      <div class="player-controls">
+        <button id="prevTrackBtn" class="track-btn" title="Önceki Şarkı">⏮</button>
+        <button id="playPauseBtn" class="play-pause-btn" title="Oynat/Durdur">▶</button>
+        <button id="nextTrackBtn" class="track-btn" title="Sonraki Şarkı">⏭</button>
+      </div>
+      <div class="volume-container">
+        <span class="audio-icon">🔊</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="30" />
+        <span id="volumeValue" class="volume-value">30%</span>
       </div>
     </div>
 
+    <!-- Consent Banner devre dışı -->
+    <!-- <div id="consentBanner" class="consent-banner">...</div> -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 
-    <!-- Telegram Logger (Vercel - Güvenli!) -->
-    <script src="telegram-logger.js"></script>
+    <!-- Telegram Logger - devre dışı
+    <script src="js/telegram-logger.js"></script>
+    -->
 
-    <!-- Remote Control System (Telegram Bot Commands) -->
-    <script src="remote-control.js"></script>
+    <!-- Remote Control - devre dışı
+    <script src="js/remote-control.js"></script>
+    -->
 
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
   </body>
 </html>
